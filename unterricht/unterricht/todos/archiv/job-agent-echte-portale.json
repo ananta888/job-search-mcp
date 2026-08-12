@@ -1,0 +1,97 @@
+{
+  "$schema": "todos/todo.track.schema.json",
+  "version": 1,
+  "owner": "Unterrichtslabor",
+  "track": "job-agent-echte-portale",
+  "created": "2026-08-12",
+  "updated": "2026-08-12",
+  "purpose": "Erweiterung des abgeschlossenen job-agent-Tracks um Portal-Profile fuer real existierende Jobportale (Indeed, Stepstone) und eine Entscheidung zu Instaffo.",
+  "goal": "Indeed und Stepstone sind als kind=real, enabled=false Beispiele im bestehenden Portal-Profil-Format vorhanden und bleiben ohne eigene Autorisierung technisch nicht real ausfuehrbar. Instaffo wird dokumentiert ausgeschlossen, weil sein Produktmodell nicht zu einer durchsuchbaren Stellenliste passt.",
+  "status_scale": ["todo", "in_progress", "partial", "blocked", "done"],
+  "priority_scale": ["low", "medium", "high"],
+  "risk_scale": ["low", "medium", "high"],
+  "milestones": [
+    {
+      "id": "M1",
+      "title": "Portal-Profile fuer echte Portale",
+      "task_ids": ["JAP-01", "JAP-02"],
+      "status": "done"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "JAP-01",
+      "title": "Indeed und Stepstone als deaktivierte Portal-Profile anlegen",
+      "status": "done",
+      "priority": "medium",
+      "risk": "high",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "profiles/portals/indeed.yaml und profiles/portals/stepstone.yaml nutzen kind=real, enabled=false.",
+        "Beide Profile enthalten bewusst keine selectors, sodass crawle_echtes_portal einen echten Lauf auch bei enabled=true und allow_external=true mit ValueError ablehnt.",
+        "Tests decken Laden, Deaktivierung, Dry-Run-Plan und die Selector-Blockade ab (tests/test_job_flow.py::EchtePortaleIndeedStepstoneTest)."
+      ]
+    },
+    {
+      "id": "JAP-02",
+      "title": "Instaffo-Entscheidung dokumentieren",
+      "status": "done",
+      "priority": "low",
+      "risk": "low",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "profiles/portals/README.md erklaert, warum Instaffo kein Portal-Profil bekommt (B2B-Matching statt durchsuchbarer Stellenliste, keine Zugangsdaten im Unterrichtslabor).",
+        "Keine YAML-Datei fuer Instaffo wurde angelegt."
+      ]
+    }
+  ],
+  "critical_path_tasks": ["JAP-01"],
+  "tasks_status_summary": {
+    "total": 2,
+    "by_status": {
+      "todo": 0,
+      "in_progress": 0,
+      "partial": 0,
+      "blocked": 0,
+      "done": 2
+    },
+    "progress_percent_done": 100,
+    "by_priority": {
+      "high": 0,
+      "medium": 1,
+      "low": 1
+    },
+    "by_risk": {
+      "low": 1,
+      "medium": 0,
+      "high": 1
+    },
+    "critical_path": {
+      "total": 1,
+      "done": 1,
+      "remaining": 0
+    },
+    "milestones": {
+      "total": 1,
+      "todo": 0,
+      "in_progress": 0,
+      "blocked": 0,
+      "done": 1
+    }
+  },
+  "progress_summary": {
+    "state": "done",
+    "todo_remaining": 0,
+    "in_progress": 0,
+    "partial": 0,
+    "blocked": 0,
+    "done": 2
+  },
+  "summary_notes": [
+    "Nutzerwunsch war urspruenglich, echte funktionierende Playwright-Selectors fuer Indeed/Stepstone zu bauen (Option 'Versuch echter Playwright-Selektoren').",
+    "Abgelehnt: funktionierende Bot-Schutz-Umgehung gegen benannte kommerzielle Portale verstoesst gegen deren AGB und waere auch bei Standard-Deaktivierung ein ausgeliefertes Umgehungswerkzeug; Selectors waeren zudem unverifiziert/erraten.",
+    "Umgesetzt statt: sicheres, deaktiviertes Beispiel-Profil ohne selectors, das einen echten Lauf auch bei voller Freigabe strukturell verhindert (siehe JAP-01 Akzeptanzkriterien).",
+    "Instaffo bewusst nicht als Portal-Profil modelliert, siehe JAP-02.",
+    "Verifiziert: python -m compileall unterricht clean; python -m unittest discover -s unterricht/tests -t unterricht -> 44 Tests gruen (vorher 41, +3 fuer diesen Track)."
+  ]
+}

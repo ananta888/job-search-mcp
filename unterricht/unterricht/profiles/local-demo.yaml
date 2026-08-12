@@ -1,0 +1,21 @@
+name: local-teaching-demo
+base_url: http://127.0.0.1:8765
+
+selectors:
+  input_label: Suchbegriff
+  submit_role: button
+  submit_name: Suchen
+  output_css: "#result"
+
+policy:
+  allowed_hosts:
+    - 127.0.0.1
+    - localhost
+  allowed_paths:
+    - /api/search
+
+validation:
+  schema_file: schemas/search-response.schema.json
+  ignore_paths:
+    - $.request_id
+    - $.meta.server_time

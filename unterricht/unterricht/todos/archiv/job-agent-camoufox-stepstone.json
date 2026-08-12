@@ -1,0 +1,123 @@
+{
+  "$schema": "todos/todo.track.schema.json",
+  "version": 1,
+  "owner": "Unterrichtslabor",
+  "track": "job-agent-camoufox-stepstone",
+  "created": "2026-08-12",
+  "updated": "2026-08-12",
+  "purpose": "Camoufox (Anti-Detect-Firefox, camoufox.sync_api) als austauschbare Browser-Engine in den JOB-Agenten einbauen und das Portal-Profil stepstone.yaml fuer einen echten UI-Lauf freischalten.",
+  "goal": "crawle_echtes_portal nutzt eine schmale Browser-Port (job_browser.BrowserEngine) mit den Engines PlaywrightChromiumEngine (Standard) und CamoufoxEngine; das Gate (kind=real + enabled + ALLOW_EXTERNAL_PORTALS=1 + allow_external) bleibt erhalten. Stepstone wird auf enabled=true + browser=camoufox gestellt; Indeed bleibt deaktiviert ohne selectors. Die selectors fuer Stepstone sind als unverifiziert gekennzeichnet und muessen beim ersten echten Lauf kalibriert werden.",
+  "decision": "Nutzerwunsch (2026-08-12): Camoufox fuer die Jobsuche einbauen, fuer Stepstone. Der Nutzer hat nach ausdruecklicher Aufklaerung die Option 'Echter Stepstone-Lauf erlauben' gewaehlt. Damit wird die Entscheidung aus todos/archiv/job-agent-echte-portale.json (JAP-01: 'bewusst KEINE selectors, AGB-widriges Scraping ist nicht vorgesehen') fuer Stepstone bewusst und explizit umgekehrt. Indeed und beispiel-karriere bleiben von der Umkehr unberuehrt. Die vorhandenen Sicherheitsstufen (Gate, Dry-Run, Validierung) bleiben in Kraft; ein echter Lauf verlangt weiterhin kind=real + enabled=true + ALLOW_EXTERNAL_PORTALS=1 + allow_external=true.",
+  "status_scale": ["todo", "in_progress", "partial", "blocked", "done"],
+  "priority_scale": ["low", "medium", "high"],
+  "risk_scale": ["low", "medium", "high"],
+  "milestones": [
+    {
+      "id": "M1",
+      "title": "Browser-Port und Camoufox-Engine",
+      "task_ids": ["JAC-01"],
+      "status": "done"
+    },
+    {
+      "id": "M2",
+      "title": "Stepstone-Freischaltung und MVP",
+      "task_ids": ["JAC-02"],
+      "status": "done"
+    },
+    {
+      "id": "M3",
+      "title": "Tests, Doku und Evidenz",
+      "task_ids": ["JAC-03"],
+      "status": "done"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "JAC-01",
+      "title": "Browser-Port job_browser.py mit Camoufox-Engine",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "unterricht/job_browser.py definiert eine schmale Port (BrowserEngine) mit suche_ui(...) und genau zwei Engines: PlaywrightChromiumEngine (Standard) und CamoufoxEngine.",
+        "Beide Engines importieren Playwright/Camoufox lazy (nur beim Start), sodass Tests ohne diese Pakete laufen.",
+        "engine_fuer(name) liefert die Engine oder wirft ValueError bei unbekanntem Namen.",
+        "crawle_echtes_portal nutzt die Engine aus portal.browser und hält alle bestehenden Gates ein."
+      ]
+    },
+    {
+      "id": "JAC-02",
+      "title": "Stepstone-Profil freischalten und Camoufox-MVP",
+      "status": "done",
+      "priority": "high",
+      "risk": "high",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "profiles/portals/stepstone.yaml: enabled=true, browser=camoufox, selectors vorhanden und klar als unverifiziert gekennzeichnet (Kommentar im YAML).",
+        "Indeed bleibt enabled=false ohne selectors; der Selektoren-Block für Stepstone ist in einem echten Lauf kalibrierbar.",
+        "mvps/camoufox_browser.py ist ein kleines, direkt startbares MVP (Dry-Run als Standard, echter Lauf gegen die lokale Sandbox optional)."
+      ]
+    },
+    {
+      "id": "JAC-03",
+      "title": "Tests, Doku und Todo-Evidenz",
+      "status": "done",
+      "priority": "medium",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "tests/test_job_browser.py deckt Port, Engine-Factory, unbekannte Engine und lazy Import ab.",
+        "tests/test_job_flow.py und tests/test_job_mcp.py bleiben grün; neue Tests prüfen den Stepstone-Plan mit browser=camoufox und das unveränderte Gate für Indeed.",
+        "README.md, profiles/portals/README.md, .opencode/skills/job-crawler/SKILL.md und .opencode/agent/job-agent.md dokumentieren Camoufox und die Stepstone-Freischaltung mit dem bestehenden Gate.",
+        "Todo-Datei ist konsistent, validiert und alle Akzeptanzkriterien sind verifiziert."
+      ]
+    }
+  ],
+  "critical_path_tasks": ["JAC-01", "JAC-02"],
+  "tasks_status_summary": {
+    "total": 3,
+    "by_status": {
+      "todo": 0,
+      "in_progress": 0,
+      "partial": 0,
+      "blocked": 0,
+      "done": 3
+    },
+    "progress_percent_done": 100,
+    "by_priority": {
+      "high": 2,
+      "medium": 1,
+      "low": 0
+    },
+    "by_risk": {
+      "low": 0,
+      "medium": 2,
+      "high": 1
+    },
+    "critical_path": {
+      "total": 2,
+      "done": 2,
+      "remaining": 0
+    },
+    "milestones": {
+      "total": 3,
+      "todo": 0,
+      "in_progress": 0,
+      "blocked": 0,
+      "done": 3
+    }
+  },
+  "progress_summary": {
+    "state": "done",
+    "todo_remaining": 0,
+    "in_progress": 0,
+    "partial": 0,
+    "blocked": 0,
+    "done": 3
+  },
+  "summary_notes": [
+    "Archiviert am 2026-08-12: Alle Akzeptanzkriterien sind erfuellt (Engine vorhanden, Stepstone freigeschaltet mit unverifizierten selectors, Tests und Doku gruen).",
+    "Die Selektoren-Kalibrierung gegen die Live-Seite bleibt offen und ist Bestandteil des Folge-Tracks job-search-mcp-browser-session."
+  ]
+}

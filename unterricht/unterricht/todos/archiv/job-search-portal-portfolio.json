@@ -1,0 +1,139 @@
+{
+  "$schema": "todos/todo.track.schema.json",
+  "version": 1,
+  "owner": "Unterrichtslabor",
+  "track": "job-search-portal-portfolio",
+  "created": "2026-08-12",
+  "updated": "2026-08-12",
+  "purpose": "Die Jobsuche regelkonform um mehrere echte Quellen und einen transparenten Portal-Katalog erweitern.",
+  "goal": "StepStone, offizielle Job-Feeds und manuelle beziehungsweise partnergebundene Portale werden klar getrennt; aktive Quellen lassen sich in einer Mehrportal-Suche gemeinsam abfragen.",
+  "status_scale": ["todo", "in_progress", "partial", "blocked", "done"],
+  "priority_scale": ["low", "medium", "high"],
+  "risk_scale": ["low", "medium", "high"],
+  "milestones": [
+    {
+      "id": "M1",
+      "title": "Quellenvertrag und Katalog",
+      "task_ids": ["JPP-01", "JPP-02"],
+      "status": "done"
+    },
+    {
+      "id": "M2",
+      "title": "Mehrportal-Suche und Verifikation",
+      "task_ids": ["JPP-03", "JPP-04"],
+      "status": "done"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "JPP-01",
+      "title": "Portal-Katalog mit Zugangsstatus modellieren",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "Indeed, Instaffo, LinkedIn, Bundesagentur, XING und weitere relevante Portale sind mit Zugangsart und Automatisierungsstatus sichtbar.",
+        "Der Katalog unterscheidet aktive, manuelle, partnergebundene, gesperrte und noch nicht angebundene Quellen.",
+        "Bestehende lokale Portalprofile und StepStone bleiben rückwärtskompatibel ladbar."
+      ],
+      "verification_evidence": [
+        "profiles/portal-katalog.yaml enthält 20 eindeutige Einträge mit Zugangsart, Status und Begründung.",
+        "liste_portale verbindet Katalog und ausführbare Profile; Indeed ist gesperrt, Instaffo manuell und LinkedIn partnergebunden.",
+        "Die vollständige Suite bestätigt weiterhin lokale Profile, Gates und StepStone-Verhalten."
+      ]
+    },
+    {
+      "id": "JPP-02",
+      "title": "Offizielle Feed-Adapter anbinden",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "Arbeitnow wird über seine öffentliche JSON-API ohne API-Schlüssel abgefragt.",
+        "Remotive wird über seine öffentliche JSON-API mit Quellenattribution abgefragt.",
+        "We Work Remotely wird über den offiziell angebotenen RSS-Feed mit Quellenattribution abgefragt.",
+        "Alle Feed-Antworten werden auf den bestehenden JobAngebot-Vertrag normalisiert und lokal nach Suchbegriff und Ort gefiltert."
+      ],
+      "verification_evidence": [
+        "job_feeds.py kapselt Arbeitnow-JSON, Remotive-JSON und We-Work-Remotely-RSS hinter einem gemeinsamen Rohvertrag und der vorhandenen Allowlist.",
+        "Live-Smoke für query=backend ohne Ort: Arbeitnow 9, Remotive 1 und We Work Remotely 13 Treffer; alle HTTP-Antworten 200.",
+        "Beschreibungen werden HTML-bereinigt und auf 2.000 Zeichen begrenzt; weltweite Remote-Stellen bleiben bei lokalem Ortsfilter sichtbar."
+      ]
+    },
+    {
+      "id": "JPP-03",
+      "title": "Mehrportal-Suche als MCP-Werkzeug bereitstellen",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "Ein MCP-Aufruf durchsucht standardmäßig alle aktiven externen Quellen.",
+        "Ein Fehler einer einzelnen Quelle verhindert Ergebnisse anderer Quellen nicht.",
+        "Quelle, Zugriffsart, Einzelergebnisse und Fehler sind im Ergebnis transparent."
+      ],
+      "verification_evidence": [
+        "mehrportal_suche ist als dreizehntes Werkzeug im echten stdio-MCP registriert und lief dort ohne Toolfehler.",
+        "Ein deterministischer Test belegt, dass ein Remotive-Fehler ein Arbeitnow-Ergebnis nicht verwirft.",
+        "Standard-Live-Smoke für backend in Nürnberg: 4/4 Quellen erfolgreich, 19 Treffer (StepStone 10, We Work Remotely 9)."
+      ]
+    },
+    {
+      "id": "JPP-04",
+      "title": "Tests, Live-Smoke und Dokumentation abschließen",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "Fokussierte Adapter- und MCP-Tests sowie die vollständige Testsuite sind grün.",
+        "Mindestens die aktiven Feed-Quellen sind mit echten öffentlichen Antworten geprüft.",
+        "README, Portal-Dokumentation und Todo-Evidenz erklären Nutzung, Attribution und verbleibende Grenzen."
+      ],
+      "verification_evidence": [
+        "23 fokussierte Adapter-/MCP-Tests und die vollständige Suite mit 107 Tests sind grün.",
+        "Ruff Check und Format sind für alle geänderten Python-Dateien grün; compileall und pip check sind grün.",
+        "README, Portal-README, OpenCode-Agent und job-crawler-Skill dokumentieren Katalog, Mehrportal-Suche, Login-Grenzen und Attribution."
+      ]
+    }
+  ],
+  "critical_path_tasks": ["JPP-01", "JPP-02", "JPP-03", "JPP-04"],
+  "tasks_status_summary": {
+    "total": 4,
+    "by_status": {"todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 4},
+    "progress_percent_done": 100,
+    "by_priority": {"high": 4, "medium": 0, "low": 0},
+    "by_risk": {"high": 0, "medium": 4, "low": 0},
+    "critical_path": {"total": 4, "done": 4, "remaining": 0},
+    "milestones": {"total": 2, "todo": 0, "in_progress": 0, "blocked": 0, "done": 2}
+  },
+  "progress_summary": {
+    "state": "done",
+    "todo_remaining": 0,
+    "in_progress": 0,
+    "partial": 0,
+    "blocked": 0,
+    "done": 4
+  },
+  "summary_notes": [
+    "Indeed untersagt automatisiertes Auslesen ohne eigene Autorisierung; das bestehende deaktivierte Profil bleibt gesperrt.",
+    "Instaffo beschreibt sich als Matching-Plattform statt als klassische öffentliche Jobbörse und wird deshalb als interaktiver Konto-Workflow katalogisiert.",
+    "Für neue aktive Quellen werden ausschließlich ausdrücklich angebotene öffentliche APIs beziehungsweise RSS-Feeds verwendet.",
+    "Abschluss: 20 Portale sind fachlich katalogisiert; StepStone und drei offizielle Feeds bilden den aktiven Mehrportal-Suchweg.",
+    "Bekannte Baseline außerhalb dieses Vorhabens: ein vollständiger Ruff-Lauf meldet 13 bestehende Befunde in unberührten Dateien; ein vollständiger Mypy-Lauf meldet 23 bestehende Stub- und Typbefunde. Die geänderten Dateien bestehen Ruff und die Produktionsänderungen bestehen Mypy mit ignorierten fehlenden Drittanbieter-Stubs."
+  ],
+  "end_summaries": [
+    {
+      "summary_id": "JPP-END-01",
+      "title": "Abschluss 2026-08-12",
+      "items": [
+        "Arbeitnow, Remotive und We Work Remotely sind über offizielle APIs beziehungsweise RSS neben StepStone aktiv.",
+        "mehrportal_suche bündelt aktive Quellen und isoliert Ausfälle.",
+        "Indeed, Instaffo, LinkedIn und 13 weitere Dienste werden mit ehrlichem Zugangsstatus statt als ungeprüfte Scraper ausgewiesen.",
+        "Tests, echte Feed-Smokes, kombinierter Browser-/Feed-Smoke und stdio-MCP-Smoke sind erfolgreich."
+      ]
+    }
+  ]
+}

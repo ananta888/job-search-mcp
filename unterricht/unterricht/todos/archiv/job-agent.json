@@ -1,0 +1,243 @@
+{
+  "$schema": "todos/todo.track.schema.json",
+  "version": 1,
+  "owner": "Unterrichtslabor",
+  "track": "job-agent",
+  "created": "2026-08-12",
+  "updated": "2026-08-12",
+  "purpose": "Ein JOB-Agent, der mit opencode-Skills und einem eigenen MCP-Server Firmen- und Vermittlungsportale mit dem vorhandenen Webcrawler analysiert und Stellenangebote gegen ein vorgegebenes Bewerberprofil bewertet.",
+  "goal": "Der Agent liest ein JSON-Schema-validiertes Jobprofil, crawlt konfigurierte Portale ueber die sichere Lernkette (Discovery -> Normalisierung -> Policy -> Replay -> Validierung), bewertet Angebote deterministisch und erzeugt einen Markdown-Bericht. Echte externe Portale sind nur optional, explizit aktiviert und isoliert verfuegbar.",
+  "status_scale": ["todo", "in_progress", "partial", "blocked", "done"],
+  "priority_scale": ["low", "medium", "high"],
+  "risk_scale": ["low", "medium", "high"],
+  "milestones": [
+    {
+      "id": "M1",
+      "title": "Jobprofil und Matching-Domäne",
+      "task_ids": ["JA-01", "JA-02", "JA-03"],
+      "status": "done"
+    },
+    {
+      "id": "M2",
+      "title": "Lokale Portal-Sandbox und Portal-Profile",
+      "task_ids": ["JA-04", "JA-05"],
+      "status": "done"
+    },
+    {
+      "id": "M3",
+      "title": "Job-Flow und MCP-Server",
+      "task_ids": ["JA-06", "JA-07"],
+      "status": "done"
+    },
+    {
+      "id": "M4",
+      "title": "opencode-Agent, Skill und Konfiguration",
+      "task_ids": ["JA-08"],
+      "status": "done"
+    },
+    {
+      "id": "M5",
+      "title": "MVP, Doku und Abschluss",
+      "task_ids": ["JA-09"],
+      "status": "done"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "JA-01",
+      "title": "Jobprofil als JSON mit JSON-Schema validieren",
+      "status": "done",
+      "priority": "high",
+      "risk": "low",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "schemas/job-profil.schema.json definiert Pflicht- und optionale Felder (suchbegriffe, skills_pflicht, skills_wunsch, orte, arbeitsmodelle, gehalt, sprachen, erfahrung).",
+        "profiles/job-suchprofil.json ist ein gaeltiges Beispielprofil.",
+        "job_profile.py laedt das Profil und lehnt ungueltige Profile mit klarer Fehlermeldung ab."
+      ]
+    },
+    {
+      "id": "JA-02",
+      "title": "Domänenmodelle fuer Profil, Angebot und Match",
+      "status": "done",
+      "priority": "high",
+      "risk": "low",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "job_models.py definiert JobProfil, JobAngebot und JobMatch als immutable Dataclasses.",
+        "Normalisierung (casefold) der Skills erfolgt beim Bau der Objekte."
+      ]
+    },
+    {
+      "id": "JA-03",
+      "title": "Deterministische Matching-Logik mit Tests",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "bewerte_angebote bewertet Pflicht-Skills als Ausschlusskriterium, Wunsch-Skills, Ort, Arbeitsmodell, Gehalt und Sprachen.",
+        "Ergebnisliste ist nach Score absteigend sortiert und passt/ausgeschlossen ist erklaert.",
+        "Tests decken Mindestkriterien, Score-Sortierung, Ort/Gehalt/Sprachen und leere Profile ab."
+      ]
+    },
+    {
+      "id": "JA-04",
+      "title": "Lokale Job-Portal-Sandbox in demo_app.py",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "demo_app.py stellt mehrere lokale Portale (/portal/{id}/jobs) mit unterschiedlichen Katalogen bereit.",
+        "schemas/job-portal-response.schema.json validiert die Portalantwort strukturell.",
+        "Bestehende MVPs und der Search-Flow bleiben unveraendert funktionsfaehig."
+      ]
+    },
+    {
+      "id": "JA-05",
+      "title": "Portal-Profile (lokal aktiv, real optional)",
+      "status": "done",
+      "priority": "medium",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "profiles/portals/ enthaelt YAML-Profile fuer lokale Portale und ein explizit deaktiviertes Beispiel fuer ein echtes Portal.",
+        "Portalprofil wird per Pydantic validiert und unterscheidet kind local/real sowie enabled.",
+        "Echte Portale verlangen zusaetzlich ALLOW_EXTERNAL_PORTALS=1 und bleiben standardmaessig Dry-Run."
+      ]
+    },
+    {
+      "id": "JA-06",
+      "title": "Job-Flow-Orchestrierung mit Report",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "job_flow.py laedt Profil und Portal-Profile, crawlt lokale Portale ueber Policy+Validierung, matched und schreibt berichte/job-report.md.",
+        "python -m unterricht.job_flow laeuft vollstaendig lokal und ohne externe Abhaengigkeiten.",
+        "Flow ist als Tests gegen DemoServer abgesichert (Suche, Match, Reportdatei)."
+      ]
+    },
+    {
+      "id": "JA-07",
+      "title": "Eigener MCP-Server mit Tools",
+      "status": "done",
+      "priority": "high",
+      "risk": "high",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "job_agent_mcp.py exponiert Tools: lade_profil, liste_portale, suche_angebote, bewerte_angebote, erstelle_bericht, analysiere_echtes_portal.",
+        "Server laeuft als lokaler stdio-MCP-Server und importiert ohne fest installiertes opencode-Verzeichnis.",
+        "analysiere_echtes_portal ist standardmaessig Dry-Run und verlangt fuer echte Netzwerkzugaenge ALLOW_EXTERNAL_PORTALS=1.",
+        "Tools sind direkt testbar; Smoke-Test prueft Registrierung der Toolnamen."
+      ]
+    },
+    {
+      "id": "JA-08",
+      "title": "opencode-Agent, Skill und Konfiguration",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        ".opencode/opencode.json registriert den MCP-Server job-crawler als lokalen stdio-Server.",
+        ".opencode/agent/job-agent.md definiert einen Subagenten mit klarer Rolle und Arbeitsweise.",
+        ".opencode/skills/job-crawler/SKILL.md beschreibt den Workflow und die Sicherheitsgrenzen (lokal zuerst, echte Portale gated)."
+      ]
+    },
+    {
+      "id": "JA-09",
+      "title": "MVP, Doku und Todo-Evidenz",
+      "status": "done",
+      "priority": "medium",
+      "risk": "low",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "mvps/job_matching.py ist ein kleines, direkt startbares Matching-Beispiel.",
+        "README.md dokumentiert den JOB-Agenten, Startkommandos und die Sicherheitsgrenzen.",
+        "Todo-Datei ist konsistent, validiert und alle Abschlusskriterien sind verifiziert."
+      ]
+    }
+  ],
+  "critical_path_tasks": ["JA-01", "JA-03", "JA-06", "JA-07", "JA-08"],
+  "tasks_status_summary": {
+    "total": 9,
+    "by_status": {
+      "todo": 0,
+      "in_progress": 0,
+      "partial": 0,
+      "blocked": 0,
+      "done": 9
+    },
+    "progress_percent_done": 100,
+    "by_priority": {
+      "high": 6,
+      "medium": 3,
+      "low": 0
+    },
+    "by_risk": {
+      "low": 4,
+      "medium": 4,
+      "high": 1
+    },
+    "critical_path": {
+      "total": 5,
+      "done": 5,
+      "remaining": 0
+    },
+    "milestones": {
+      "total": 5,
+      "todo": 0,
+      "in_progress": 0,
+      "blocked": 0,
+      "done": 5
+    }
+  },
+  "tasks_type_summary": {
+    "total": 9,
+    "by_type": {
+      "domain": {
+        "total": 3,
+        "done": 3,
+        "partial": 0,
+        "blocked": 0,
+        "progress_percent": 100,
+        "by_status": {"todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 3}
+      },
+      "infrastructure": {
+        "total": 4,
+        "done": 4,
+        "partial": 0,
+        "blocked": 0,
+        "progress_percent": 100,
+        "by_status": {"todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 4}
+      },
+      "integration": {
+        "total": 2,
+        "done": 2,
+        "partial": 0,
+        "blocked": 0,
+        "progress_percent": 100,
+        "by_status": {"todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 2}
+      }
+    }
+  },
+  "progress_summary": {
+    "state": "done",
+    "todo_remaining": 0,
+    "in_progress": 0,
+    "partial": 0,
+    "blocked": 0,
+    "done": 9
+  },
+  "summary_notes": [
+    "Grundlage: Lernkette UI -> Capture -> Normalisierung -> Policy -> Replay -> Validierung des Unterrichtslabors.",
+    "Entscheidung: opencode-Subagent + eigener Skill + eigener MCP-Server; Profil als JSON mit JSON-Schema.",
+    "Sicherheit: Kernpfad bleibt lokal (DemoServer 127.0.0.1); echte Portale nur kind=real, enabled=true und ALLOW_EXTERNAL_PORTALS=1.",
+    "Playwright ist in der aktuellen Umgebung nicht installiert; Discovery fuer echte Portale bleibt lazy importiert und wird nur im gated Pfad benoetigt.",
+    "Verifiziert: 41 Tests gruen (unittest), job_flow erzeugt Bericht, MCP-Stdio-Handshake mit 6 Tools, opencode.json valide gegen das offizielle Schema.",
+    "Bekannte Baseline: full_flow und Playwright-MVPs benoetigen eine Playwright-Installation (Umgebungslimit, nicht durch diese Aenderung verursacht)."
+  ]
+}

@@ -1,0 +1,21 @@
+name: remotive
+kind: real
+enabled: true
+base_url: https://remotive.com
+portal_id: remotive
+search_path: /api/remote-jobs
+
+policy:
+  allowed_hosts:
+    - remotive.com
+  allowed_paths:
+    - /api/remote-jobs
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json
+
+feed:
+  adapter: remotive
+  endpoint: https://remotive.com/api/remote-jobs
+  max_treffer: 20
+  attribution: Remotive

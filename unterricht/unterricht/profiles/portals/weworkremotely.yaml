@@ -1,0 +1,21 @@
+name: weworkremotely
+kind: real
+enabled: true
+base_url: https://weworkremotely.com
+portal_id: weworkremotely
+search_path: /remote-jobs.rss
+
+policy:
+  allowed_hosts:
+    - weworkremotely.com
+  allowed_paths:
+    - /remote-jobs.rss
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json
+
+feed:
+  adapter: weworkremotely
+  endpoint: https://weworkremotely.com/remote-jobs.rss
+  max_treffer: 20
+  attribution: We Work Remotely

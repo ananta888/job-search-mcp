@@ -1,0 +1,25 @@
+name: indeed
+kind: real
+enabled: false
+base_url: https://de.indeed.com
+portal_id: indeed
+search_path: /jobs
+
+# Echtes, oeffentliches Jobportal - NUR als deaktiviertes, isoliertes Beispiel:
+# - kind: real     -> externer Host, eigene ToS und Bot-Schutzmassnahmen
+# - enabled: false -> der JOB-Agent crawlt dieses Portal standardmaessig NICHT
+# - ALLOW_EXTERNAL_PORTALS=1 ist zusaetzlich erforderlich fuer jeden echten Lauf
+# - Absichtlich KEINE selectors: Indeeds AGB untersagen automatisiertes
+#   Auslesen/Scraping. Ohne verifizierte selectors bricht crawle_echtes_portal
+#   einen echten Lauf mit einer klaren Fehlermeldung ab, selbst wenn alle
+#   Freigaben gesetzt sind. Ein echter Lauf gegen die Live-Seite ist damit
+#   bewusst nicht vorgesehen, solange keine eigene Autorisierung (z. B. eine
+#   offizielle Indeed-API/Publisher-Vereinbarung) vorliegt.
+policy:
+  allowed_hosts:
+    - de.indeed.com
+  allowed_paths:
+    - /jobs
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json

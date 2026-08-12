@@ -1,0 +1,16 @@
+name: jobvermittlung
+kind: local
+enabled: true
+base_url: http://127.0.0.1:8765
+portal_id: jobvermittlung
+search_path: /portal/jobvermittlung/jobs
+
+policy:
+  allowed_hosts:
+    - 127.0.0.1
+    - localhost
+  allowed_paths:
+    - /portal/jobvermittlung/jobs
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json

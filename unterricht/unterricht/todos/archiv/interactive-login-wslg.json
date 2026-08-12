@@ -1,0 +1,86 @@
+{
+  "$schema": "todos/todo.track.schema.json",
+  "version": 1,
+  "owner": "Unterrichtslabor",
+  "track": "interactive-login-wslg",
+  "created": "2026-08-12",
+  "updated": "2026-08-12",
+  "purpose": "Den kontogebundenen Login über ein für den Nutzer sichtbares Camoufox-Fenster aus OpenCode heraus ermöglichen.",
+  "goal": "Browserführende MCP-Tools blockieren den Async-Loop nicht. portal_login öffnet über WSLg den tatsächlich verwendeten Browser, wartet auf den Nutzerlogin und speichert danach den Sitzungszustand.",
+  "status_scale": ["todo", "in_progress", "partial", "blocked", "done"],
+  "priority_scale": ["low", "medium", "high"],
+  "risk_scale": ["low", "medium", "high"],
+  "milestones": [
+    {"id": "M1", "title": "Async/Sync-Grenze", "task_ids": ["ILW-01"], "status": "done"},
+    {"id": "M2", "title": "Sichtbarer Login und Verifikation", "task_ids": ["ILW-02"], "status": "done"}
+  ],
+  "tasks": [
+    {
+      "id": "ILW-01",
+      "title": "Browserwerkzeuge außerhalb des MCP-Eventloops ausführen",
+      "status": "done",
+      "priority": "high",
+      "risk": "high",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "portal_login, portal_suche, portal_recherche und der echte Analysepfad führen synchrone Browseradapter in einem Worker-Thread aus.",
+        "Ein echter stdio-MCP-Aufruf der öffentlichen Suche liefert Treffer statt Playwrights Sync-in-Async-Fehler.",
+        "Direkt aufrufbare Kernfunktionen bleiben für deterministische Tests erhalten."
+      ],
+      "verification_evidence": [
+        "Die vier browserführenden Tool-Adapter verwenden asyncio.to_thread; die synchronen Kernfunktionen bleiben separat aufrufbar.",
+        "Thread-Test verifiziert, dass portal_suche über FastMCP nicht im Eventloop-Thread läuft.",
+        "Echter stdio-MCP-Aufruf lieferte isError=false und 10 Nürnberger Treffer; der vorherige Playwright-Sync-in-Async-Fehler ist behoben."
+      ]
+    },
+    {
+      "id": "ILW-02",
+      "title": "WSLg-Anzeige und Nutzerübergabe absichern",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "browser_status meldet, ob eine sichtbare Browseranzeige verfügbar ist und über welche Technik.",
+        "Ein kurzer sichtbarer Camoufox-Smoke über WSLg ist erfolgreich.",
+        "Ohne Anzeige liefert ein sichtbarer Login eine klare Handlungsanweisung; mit Anzeige wartet er auf Nutzerlogin und speichert storage_state.",
+        "Tests, statische Prüfungen und Dokumentation sind grün."
+      ],
+      "verification_evidence": [
+        "browser_status meldet in dieser Umgebung sichtbar=true und Technik WSLg/X11; ohne DISPLAY/Wayland liefert portal_login eine getestete Handlungsanweisung.",
+        "Sichtbarer Camoufox-Smoke zeigte eine lokale Testseite; echter stdio-portal_login blieb 12 Sekunden interaktiv offen, ohne den alten Async-Fehler.",
+        "Das grüne Übergabe-Panel wurde auf der echten StepStone-Loginseite sichtbar gefunden. Erst sein Klick löst storage_state-Speicherung aus.",
+        "Gesamtsuite: 100 Tests, OK; Ruff, Format, Mypy, compileall und pip check sind grün."
+      ]
+    }
+  ],
+  "critical_path_tasks": ["ILW-01", "ILW-02"],
+  "tasks_status_summary": {
+    "total": 2,
+    "by_status": {"todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 2},
+    "progress_percent_done": 100,
+    "by_priority": {"high": 2, "medium": 0, "low": 0},
+    "by_risk": {"high": 1, "medium": 1, "low": 0},
+    "critical_path": {"total": 2, "done": 2, "remaining": 0},
+    "milestones": {"total": 2, "todo": 0, "in_progress": 0, "blocked": 0, "done": 2}
+  },
+  "progress_summary": {"state": "done", "todo_remaining": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 2},
+  "summary_notes": [
+    "Red-Evidenz: echter stdio-MCP-Aufruf von portal_suche endet mit Browsersuche fehlgeschlagen (Error); der ältere Analysepfad nennt explizit Playwright Sync API inside the asyncio loop.",
+    "Umgebungsevidenz: DISPLAY=:0, WAYLAND_DISPLAY=wayland-0 und /mnt/wslg sind vorhanden; sichtbarer Camoufox-Smoke zeigte fünf Sekunden lang eine lokale Testseite.",
+    "Abschluss: OpenCode kann den verwendeten Camoufox über WSLg anzeigen. Der Nutzer bestätigt die Zustandsübernahme nach Login/2FA über ein grünes, in jede Loginseite injiziertes Übergabe-Panel.",
+    "Der Live-Smoke verwendete keine Zugangsdaten und erzeugte keine stepstone-sitzung.json; es blieb kein Testbrowserprozess zurück."
+  ],
+  "end_summaries": [
+    {
+      "summary_id": "ILW-END-01",
+      "title": "Abschluss 2026-08-12",
+      "items": [
+        "Der MCP-Async/Sync-Konflikt ist an einer expliziten Worker-Thread-Grenze behoben.",
+        "Der tatsächlich verwendete Camoufox wird über WSLg sichtbar angezeigt.",
+        "Der Nutzer übernimmt den Login selbst und bestätigt anschließend ausdrücklich die sichere Sitzungsspeicherung.",
+        "Öffentliche Suche bleibt unabhängig davon ohne Login verfügbar."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="de">
+  <head><meta charset="utf-8"><title>Jinja2-MVP</title></head>
+  <body>
+    <h1>{{ topic }}</h1>
+    <ul>
+      {% for item in items %}
+      <li>{{ item.title }} – {{ item.summary }}</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

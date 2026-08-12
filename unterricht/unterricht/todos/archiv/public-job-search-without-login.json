@@ -1,0 +1,103 @@
+{
+  "$schema": "todos/todo.track.schema.json",
+  "version": 1,
+  "owner": "Unterrichtslabor",
+  "track": "public-job-search-without-login",
+  "created": "2026-08-12",
+  "updated": "2026-08-12",
+  "purpose": "Die öffentliche StepStone-Suche in headless Umgebungen ohne unnötigen Konto-Login ermöglichen.",
+  "goal": "portal_suche und portal_recherche verwenden Camoufox für öffentliche Treffer ohne gespeicherte Sitzung; eine Login-Pflicht bleibt pro Portal explizit konfigurierbar.",
+  "status_scale": ["todo", "in_progress", "partial", "blocked", "done"],
+  "priority_scale": ["low", "medium", "high"],
+  "risk_scale": ["low", "medium", "high"],
+  "milestones": [
+    {
+      "id": "M1",
+      "title": "Öffentlichen Suchvertrag korrigieren",
+      "task_ids": ["PJS-01"],
+      "status": "done"
+    },
+    {
+      "id": "M2",
+      "title": "Live-Verifikation und Übergabe",
+      "task_ids": ["PJS-02"],
+      "status": "done"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "PJS-01",
+      "title": "Öffentliche Suche ohne Sitzung implementieren",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "StepStone ist explizit als öffentlich durchsuchbar konfiguriert.",
+        "Camoufox-Suche, portal_suche und portal_recherche funktionieren ohne Credential- oder Session-Datei.",
+        "Portale mit login_erforderlich=true bleiben ohne Sitzung gesperrt.",
+        "Status und Tool-Beschreibungen behaupten für öffentliche Portale keine Login-Pflicht."
+      ],
+      "verification_evidence": [
+        "PortalSuche.login_erforderlich bleibt standardmäßig true; StepStone setzt den Wert explizit auf false.",
+        "Fokussierte Tests verifizieren öffentliche Camoufox-Suche und browser-use-Fallback ohne State sowie das unveränderte Gate für loginpflichtige Portale.",
+        "browser_status, liste_portale, portal_suche und portal_recherche weisen den öffentlichen Sitzungsmodus explizit aus."
+      ]
+    },
+    {
+      "id": "PJS-02",
+      "title": "Regression und öffentlicher Live-Smoke",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "Fokussierte und vollständige Tests sowie Ruff und Mypy sind grün.",
+        "Ein zugangsdatenfreier headless StepStone-Lauf liefert reale Treffer.",
+        "OpenCode-Neustart beziehungsweise MCP-Reload ist dokumentiert."
+      ],
+      "verification_evidence": [
+        "Gesamtsuite: 97 Tests, OK; Ruff check/format, Mypy, compileall und pip check sind grün.",
+        "Headless Live-Smoke ohne Credentials/Session lieferte 10 StepStone-Treffer für Informatiker in Nürnberg.",
+        "Der kanonische Ortsfilter /jobs/informatiker/in-nürnberg wurde live und durch einen URL-Vertragstest verifiziert.",
+        "README, OpenCode-Agent, Skill und Portal-Dokumentation nennen die öffentliche Suche vor dem optionalen Login."
+      ]
+    }
+  ],
+  "critical_path_tasks": ["PJS-01", "PJS-02"],
+  "tasks_status_summary": {
+    "total": 2,
+    "by_status": {"todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 2},
+    "progress_percent_done": 100,
+    "by_priority": {"high": 2, "medium": 0, "low": 0},
+    "by_risk": {"high": 0, "medium": 2, "low": 0},
+    "critical_path": {"total": 2, "done": 2, "remaining": 0},
+    "milestones": {"total": 2, "todo": 0, "in_progress": 0, "blocked": 0, "done": 2}
+  },
+  "progress_summary": {
+    "state": "done",
+    "todo_remaining": 0,
+    "in_progress": 0,
+    "partial": 0,
+    "blocked": 0,
+    "done": 2
+  },
+  "summary_notes": [
+    "Red-Ausgangslage: BrowserSessionManager.suche und portal_recherche brechen ohne storage_state vor dem öffentlichen StepStone-Aufruf ab.",
+    "Die laufende OpenCode-Session kann kein sichtbares Browserfenster öffnen; es liegen bewusst keine Zugangsdaten vor.",
+    "Abschluss: Für öffentliche StepStone-Treffer ist kein Login mehr erforderlich. Der separate Ort-Parameter erzeugt den aktuellen kanonischen StepStone-Ortspfad.",
+    "Die bei Implementierung bereits laufende OpenCode-Instanz muss neu gestartet werden, damit ihr bestehender MCP-Kindprozess den aktualisierten Python-Code lädt."
+  ],
+  "end_summaries": [
+    {
+      "summary_id": "PJS-END-01",
+      "title": "Abschluss 2026-08-12",
+      "items": [
+        "Die unnötige Login-Pflicht wurde durch einen expliziten Portalvertrag ersetzt.",
+        "StepStone-Suche und -Recherche laufen öffentlich und headless ohne Credentials oder Session.",
+        "Der Ort wird getrennt vom Suchbegriff über den kanonischen StepStone-Pfad gefiltert.",
+        "Live- und Regressionsevidenz sind vollständig grün."
+      ]
+    }
+  ]
+}

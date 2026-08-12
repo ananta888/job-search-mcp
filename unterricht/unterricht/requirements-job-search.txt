@@ -1,0 +1,15 @@
+# Reproduzierbare Laufzeit fuer den lokalen Job-Search-MCP (Python 3.12).
+# Browser-Binary nach der Installation einmalig mit
+#   python -m camoufox fetch
+# laden.
+browser-use==0.13.7
+camoufox==0.5.4
+cryptography>=46,<51
+fastapi>=0.116,<1
+httpx>=0.28,<1
+jsonschema>=4.25,<5
+mcp>=1.26,<2
+playwright==1.60.0
+pydantic>=2.12,<3
+PyYAML>=6,<7
+uvicorn>=0.35,<1

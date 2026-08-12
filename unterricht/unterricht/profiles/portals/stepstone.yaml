@@ -1,0 +1,70 @@
+name: stepstone
+kind: real
+enabled: true
+browser: camoufox
+base_url: https://www.stepstone.de
+portal_id: stepstone
+search_path: /jobs/in-deutschland
+
+# Echter Lauf VOM NUTZER EXPLIZIT FREIGEGEBEN (2026-08-12), siehe
+# todos/archiv/job-agent-camoufox-stepstone.json: Umkehr von JAP-01 fuer
+# Stepstone allein. Es gelten weiterhin ALLE Gates:
+# - kind: real -> externer Host, eigene ToS und Bot-Schutzmassnahmen
+# - ALLOW_EXTERNAL_PORTALS=1 zusaetzlich erforderlich fuer jeden echten Lauf
+# - standardmaessig Dry-Run (allow_external=false)
+# - Browser-Engine: camoufox (Anti-Detect-Firefox, Playwright-Drop-in)
+#
+# Die öffentliche Suche läuft headless ohne Konto. Die Sitzungs-Werkzeuge
+# verwalten optional einen echten Browserzustand für kontogebundene Funktionen.
+policy:
+  allowed_hosts:
+    - www.stepstone.de
+  allowed_paths:
+    - /jobs/in-deutschland
+    - /de-DE/candidate/login
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json
+
+# LIVE KALIBRIERT AM 2026-08-12, weiterhin volatil:
+# Die semantischen data-testid-Werte und die oeffentlichen URLs wurden mit dem
+# zugangsdatenfreien MVP mvps/stepstone_calib.py verifiziert. Stepstone ist eine
+# SPA und kann die Selektoren jederzeit aendern; dann den Kalibrierer erneut
+# ausfuehren. Kein Bot-Schutz wird umgangen.
+selectors:
+  input_css: "input[placeholder*='Jobtitel']"
+  submit_role: button
+  submit_name: Jobs finden
+  output_css: "[data-testid='job-item']"
+
+# Formularfelder und Submit-Button live verifiziert; der Erfolgsindikator kann
+# erst mit einem echten Nutzerkonto abschliessend bestaetigt werden.
+login:
+  url: https://www.stepstone.de/de-DE/candidate/login
+  benutzername_css: "[data-testid='email-input']"
+  passwort_css: "[data-testid='password-input']"
+  submit_css: "[data-testid='login-submit-btn']"
+  submit_role: button
+  submit_name: Einloggen
+  erfolg_selector: "body:not(:has([data-testid='login-submit-btn']))"
+  timeout_s: 240
+
+# Trefferkarte, Titel/Link und Kartenstruktur live verifiziert. Firma, Ort,
+# Arbeitsmodell, Gehalt und Beschreibung liegen in positionsbasierten Knoten;
+# diese sind fragiler als die data-testid-Werte.
+suche:
+  # Die öffentliche Trefferliste ist ohne Konto und ohne Browserfenster nutzbar.
+  # Login bleibt optional für persönliche StepStone-Funktionen.
+  login_erforderlich: false
+  ort_pfad_template: /jobs/{query}/in-{ort}
+  pfad: /jobs/in-deutschland
+  query_param: q
+  karte_css: "[data-testid='job-item']"
+  titel_css: "[data-testid='job-item-title']"
+  firma_css: "[data-testid='job-card-content'] > div:nth-child(3) > div:nth-child(1)"
+  ort_css: "[data-testid='job-card-content'] > div:nth-child(3) > div:nth-child(2)"
+  arbeitsmodell_css: "[data-testid='job-card-content'] > div:nth-child(3) > div:nth-child(3)"
+  gehalt_css: "[data-testid='job-card-content'] > div:nth-child(3) > div:nth-child(4)"
+  link_css: "[data-testid='job-item-title']"
+  beschreibung_css: ":scope > div:nth-child(2) > div:nth-child(2)"
+  max_treffer: 10

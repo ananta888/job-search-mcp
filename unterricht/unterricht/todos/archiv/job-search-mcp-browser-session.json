@@ -1,0 +1,175 @@
+{
+  "$schema": "todos/todo.track.schema.json",
+  "version": 1,
+  "owner": "Unterrichtslabor",
+  "track": "job-search-mcp-browser-session",
+  "created": "2026-08-12",
+  "updated": "2026-08-12",
+  "purpose": "Die abgebrochene OpenCode-Implementierung eines lokalen Job-Search-MCP-Servers mit Camoufox, verwalteter Browser-Sitzung und browser-use-Fallback vervollstaendigen und verifizieren.",
+  "goal": "OpenCode kann den lokalen job-search-MCP ohne Docker starten. Stepstone-Login und -Suche verwenden primaer Camoufox mit verschluesselter Credential-Ablage und persistiertem Browserzustand; ein explizit konfigurierter browser-use-Adapter steht als sicher begrenzter Fallback bereit. Profilrecherche, Bewertung und Bericht sind deterministisch getestet.",
+  "status_scale": ["todo", "in_progress", "partial", "blocked", "done"],
+  "priority_scale": ["low", "medium", "high"],
+  "risk_scale": ["low", "medium", "high"],
+  "milestones": [
+    {
+      "id": "M1",
+      "title": "Sitzungs- und Credential-Kern",
+      "task_ids": ["JSM-01"],
+      "status": "done"
+    },
+    {
+      "id": "M2",
+      "title": "MCP- und OpenCode-Integration",
+      "task_ids": ["JSM-02"],
+      "status": "done"
+    },
+    {
+      "id": "M3",
+      "title": "Browser-Fallback und Stepstone-Kalibrierung",
+      "task_ids": ["JSM-03"],
+      "status": "done"
+    },
+    {
+      "id": "M4",
+      "title": "Regression, Doku und Abschluss",
+      "task_ids": ["JSM-04"],
+      "status": "done"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "JSM-01",
+      "title": "Credential- und Browser-Sitzungsverwaltung fertigstellen",
+      "status": "done",
+      "priority": "high",
+      "risk": "high",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "Credentials werden validiert, als Fernet-Token mit restriktiven Dateirechten gespeichert und niemals in Status-/Tool-Antworten ausgegeben.",
+        "Camoufox-Login speichert Playwright storage_state und die Suche verwendet diesen Zustand wieder.",
+        "Relative Profilpfade und der State-Pfad funktionieren unabhaengig vom aktuellen Arbeitsverzeichnis.",
+        "Fokussierte Tests fuer CredentialStore und BrowserSessionManager sind gruen."
+      ],
+      "verification_evidence": [
+        "Credential- und Session-Dateien werden in Tests mit 0600, das State-Verzeichnis mit 0700 verifiziert; Portal-IDs verhindern Path Traversal.",
+        "Fake-Browser-Integration verifiziert Auto-Fill, interaktiven Login, storage_state-Persistenz, Wiederverwendung und Loeschen ohne Ausgabe von Secrets.",
+        "Relative Profil-/Berichtspfade sind an den Projektordner gebunden; der Standard-State liegt ausserhalb des Projekts."
+      ]
+    },
+    {
+      "id": "JSM-02",
+      "title": "Job-Search-MCP in OpenCode verdrahten",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "job_search_mcp.py exponiert Status, Credential-, Login-, Session-, Suche-, Recherche-, Bewertungs- und Berichtswerkzeuge.",
+        ".opencode/opencode.json startet den neuen Server mit der lokalen virtuellen Umgebung ohne Docker.",
+        "Ein MCP-Smoke-Test bestaetigt Initialisierung und Tool-Liste."
+      ],
+      "verification_evidence": [
+        "93 Unittests bestaetigen unter anderem die registrierte Tool-Liste und die MCP-Schalen.",
+        "opencode mcp list meldet job-crawler sowohl aus dem aeusseren als auch inneren Arbeitsordner als connected.",
+        "Beide OpenCode-Konfigurationen verwenden die lokale .venv und job_search_mcp.py ohne Docker."
+      ]
+    },
+    {
+      "id": "JSM-03",
+      "title": "Camoufox primaer und browser-use als sicherer Fallback",
+      "status": "done",
+      "priority": "high",
+      "risk": "high",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "Treiberverfuegbarkeit entspricht der im Portal konfigurierten Engine und Startfehler werden als klare Adapterfehler gemeldet.",
+        "browser-use wird nur bei expliziter LLM-Konfiguration verwendet und uebermittelt keine Passwoerter an das LLM.",
+        "Der oeffentliche Stepstone-Kalibrierungslauf ist minimal, zugangsdatenfrei und sein Ergebnis bzw. eine externe Blockade ist dokumentiert."
+      ],
+      "verification_evidence": [
+        "Camoufox 0.5.4 und Browser v152.0.4-beta.28 sind installiert; der Build wird als aktuell gemeldet.",
+        "Zugangsdatenfreier Live-Lauf am 2026-08-12 verifizierte Login-URL/-Felder, robots-kompatible Such-URL und Ergebniskarten; ein Produktions-Smoke lieferte 10 reale Treffer.",
+        "Der Fallback-Test bestaetigt, dass browser-use nur storage_state erhaelt; ohne eigene LLM-Konfiguration bleibt der Adapter deaktiviert."
+      ]
+    },
+    {
+      "id": "JSM-04",
+      "title": "Regression, Dokumentation und Todo-Evidenz",
+      "status": "done",
+      "priority": "medium",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "Neue fokussierte Tests und die komplette bestehende Testsuite sind gruen oder Baseline-Fehler sind getrennt dokumentiert.",
+        "README, OpenCode-Agent/Skill und Portal-Dokumentation enthalten konsistente Start-, Login-, Such-, Sicherheits- und Fallback-Hinweise.",
+        "Todo-Artefakte sind schema-valide, widerspruchsfrei und enthalten die ausgefuehrten Pruefkommandos."
+      ],
+      "verification_evidence": [
+        "Gesamtsuite: .venv/bin/python -m unittest discover -s unterricht/unterricht/tests -t unterricht -v -> 93 Tests, OK.",
+        "Ruff check und format --check fuer alle geaenderten Python-Dateien -> sauber; compileall und pip check -> sauber.",
+        "Mypy fuer 9 betroffene Produktionsdateien -> Success: no issues found; README, Agent, Skill und Portal-Doku aktualisiert."
+      ]
+    }
+  ],
+  "critical_path_tasks": ["JSM-01", "JSM-02", "JSM-03"],
+  "tasks_status_summary": {
+    "total": 4,
+    "by_status": {
+      "todo": 0,
+      "in_progress": 0,
+      "partial": 0,
+      "blocked": 0,
+      "done": 4
+    },
+    "progress_percent_done": 100,
+    "by_priority": {
+      "high": 3,
+      "medium": 1,
+      "low": 0
+    },
+    "by_risk": {
+      "high": 2,
+      "medium": 2,
+      "low": 0
+    },
+    "critical_path": {
+      "total": 3,
+      "done": 3,
+      "remaining": 0
+    },
+    "milestones": {
+      "total": 4,
+      "todo": 0,
+      "in_progress": 0,
+      "blocked": 0,
+      "done": 4
+    }
+  },
+  "progress_summary": {
+    "state": "done",
+    "todo_remaining": 0,
+    "in_progress": 0,
+    "partial": 0,
+    "blocked": 0,
+    "done": 4
+  },
+  "summary_notes": [
+    "Uebernommen aus OpenCode-Sitzung ses_009e16fb1ffevVheKvawM03H0I; letzter Nutzerstand: 'gehts noch weiter?'.",
+    "Red-Evidenz: 29 fokussierte Tests am 2026-08-12, davon 2 fehlgeschlagen und 4 mit Fehler; Profilpfad, Test-Fakes und Login-Verdrahtung waren zu korrigieren.",
+    "Green-Evidenz: 93 Tests, Ruff, Format, Mypy, compileall und pip check sind gruen; job-crawler ist in OpenCode aus beiden Projektordnern verbunden.",
+    "Die Pakete mcp 1.26.0, playwright 1.60.0, camoufox 0.5.4 und browser-use 0.13.7 sind reproduzierbar in requirements-job-search.txt erfasst.",
+    "Bewusste Live-Grenze: Es wurden keine echten Zugangsdaten verwendet. Login-Formular und Adapter sind verifiziert, ein erfolgreicher StepStone-Kontologin bleibt nutzerkontogebunden. Browser-use wurde ohne fremden LLM-Aufruf deterministisch getestet."
+  ],
+  "end_summaries": [
+    {
+      "summary_id": "JSM-END-01",
+      "title": "Abschluss 2026-08-12",
+      "items": [
+        "Die abgebrochene OpenCode-Session wurde rekonstruiert und fachlich fertiggestellt.",
+        "Camoufox ist primaer; browser-use ist ein explizit konfigurierter, hostbegrenzter Fallback ohne Portalpasswoerter.",
+        "StepStone-Suche und Extraktion wurden live ohne Login verifiziert; echte Kontoanmeldung bleibt eine bewusste Nutzeraktion.",
+        "OpenCode-Start, Tests, statische Pruefungen, Abhaengigkeiten und Dokumentation sind verifiziert."
+      ]
+    }
+  ]
+}

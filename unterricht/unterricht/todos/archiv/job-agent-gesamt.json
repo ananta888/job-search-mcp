@@ -1,0 +1,282 @@
+{
+  "$schema": "todos/todo.track.schema.json",
+  "version": 2,
+  "owner": "Unterrichtslabor",
+  "track": "job-agent-gesamt",
+  "created": "2026-08-12",
+  "updated": "2026-08-12",
+  "purpose": "Konsolidierte Gesamtsicht aller bisherigen Verbesserungen am JOB-Agenten: Kern-Implementierung (Profil, Domäne, Matching, lokale Sandbox, Flow, MCP-Server, opencode-Anbindung, Doku) sowie die Erweiterung um Beispiel-Profile fuer echte Portale. Ersetzt keine der Einzel-Tracks, sondern fasst todos/archiv/job-agent.json und todos/archiv/job-agent-echte-portale.json in einem Dokument zusammen; alle Akzeptanzkriterien wurden am aktuellen Quellcode gegengeprueft.",
+  "goal": "Ein JOB-Agent liest ein validiertes Jobprofil, crawlt konfigurierte Portale ueber die sichere Lernkette (Discovery -> Normalisierung -> Policy -> Replay -> Validierung), bewertet Angebote deterministisch und erzeugt einen Markdown-Bericht - lokal per Sandbox, optional per opencode-Subagent/Skill/MCP-Server. Echte externe Portale (Indeed, Stepstone) sind nur als deaktivierte, selectorlose Beispiele hinterlegt; Instaffo wurde bewusst nicht modelliert.",
+  "status_scale": ["todo", "in_progress", "partial", "blocked", "done"],
+  "priority_scale": ["low", "medium", "high"],
+  "risk_scale": ["low", "medium", "high"],
+  "milestones": [
+    {
+      "id": "M1",
+      "title": "Jobprofil und Matching-Domäne",
+      "task_ids": ["JA-01", "JA-02", "JA-03"],
+      "status": "done"
+    },
+    {
+      "id": "M2",
+      "title": "Lokale Portal-Sandbox und Portal-Profile",
+      "task_ids": ["JA-04", "JA-05"],
+      "status": "done"
+    },
+    {
+      "id": "M3",
+      "title": "Job-Flow und MCP-Server",
+      "task_ids": ["JA-06", "JA-07"],
+      "status": "done"
+    },
+    {
+      "id": "M4",
+      "title": "opencode-Agent, Skill und Konfiguration",
+      "task_ids": ["JA-08"],
+      "status": "done"
+    },
+    {
+      "id": "M5",
+      "title": "MVP, Doku und Abschluss",
+      "task_ids": ["JA-09"],
+      "status": "done"
+    },
+    {
+      "id": "M6",
+      "title": "Beispiel-Profile fuer echte Portale (Indeed, Stepstone, Instaffo-Entscheidung)",
+      "task_ids": ["JAP-01", "JAP-02"],
+      "status": "done"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "JA-01",
+      "title": "Jobprofil als JSON mit JSON-Schema validieren",
+      "status": "done",
+      "priority": "high",
+      "risk": "low",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "schemas/job-profil.schema.json definiert Pflicht- und optionale Felder (suchbegriffe, skills_pflicht, skills_wunsch, orte, arbeitsmodelle, gehalt, sprachen, erfahrung) - Datei vorhanden, verifiziert per ls.",
+        "profiles/job-suchprofil.json ist ein gueltiges Beispielprofil - Datei vorhanden, verifiziert per ls.",
+        "job_profile.py laedt das Profil und lehnt ungueltige Profile mit klarer Fehlermeldung ab - Datei vorhanden; Verhalten durch tests/test_job_profile.py abgedeckt (Teil der 44 gruenen Tests)."
+      ]
+    },
+    {
+      "id": "JA-02",
+      "title": "Domänenmodelle fuer Profil, Angebot und Match",
+      "status": "done",
+      "priority": "high",
+      "risk": "low",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "job_models.py definiert JobProfil, JobAngebot und JobMatch als immutable Dataclasses - Datei vorhanden.",
+        "Normalisierung (casefold) der Skills erfolgt beim Bau der Objekte - Verhalten durch tests/test_job_match.py und tests/test_job_flow.py::PortalSucheTest indirekt abgedeckt."
+      ]
+    },
+    {
+      "id": "JA-03",
+      "title": "Deterministische Matching-Logik mit Tests",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "bewerte_angebote in job_match.py bewertet Pflicht-Skills als Ausschlusskriterium, Wunsch-Skills, Ort, Arbeitsmodell, Gehalt und Sprachen - Datei/Funktion vorhanden.",
+        "Ergebnisliste ist nach Score absteigend sortiert und passt/ausgeschlossen ist erklaert.",
+        "Tests decken Mindestkriterien, Score-Sortierung, Ort/Gehalt/Sprachen und leere Profile ab - tests/test_job_match.py vorhanden, Teil der 44 gruenen Tests (python -m unittest discover -s unterricht/tests -t unterricht, Stand 2026-08-12)."
+      ]
+    },
+    {
+      "id": "JA-04",
+      "title": "Lokale Job-Portal-Sandbox in demo_app.py",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "demo_app.py stellt mehrere lokale Portale (/portal/{id}/jobs) mit unterschiedlichen Katalogen bereit - Datei vorhanden, genutzt von tests/test_job_flow.py::PortalSucheTest gegen DemoServer.",
+        "schemas/job-portal-response.schema.json validiert die Portalantwort strukturell - Datei vorhanden.",
+        "Bestehende MVPs und der Search-Flow bleiben unveraendert funktionsfaehig - bestaetigt durch vollstaendigen gruenen Testlauf (44 Tests)."
+      ]
+    },
+    {
+      "id": "JA-05",
+      "title": "Portal-Profile (lokal aktiv, real optional)",
+      "status": "done",
+      "priority": "medium",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "profiles/portals/ enthaelt YAML-Profile fuer lokale Portale (acme-karriere.yaml, jobvermittlung.yaml) und deaktivierte Beispiele fuer echte Portale (beispiel-karriere.yaml, indeed.yaml, stepstone.yaml) - alle Dateien vorhanden, verifiziert per ls.",
+        "Portalprofil wird per Pydantic validiert (job_portal.PortalProfil) und unterscheidet kind local/real sowie enabled - Code vorhanden, Property erlaubt kombiniert kind/enabled.",
+        "Echte Portale verlangen zusaetzlich ALLOW_EXTERNAL_PORTALS=1 und bleiben standardmaessig Dry-Run - job_flow.crawl_erlaubt/crawle_echtes_portal implementieren das Gate, tests/test_job_flow.py::EchtPortalGateTest und ::EchtePortaleIndeedStepstoneTest decken es ab."
+      ]
+    },
+    {
+      "id": "JA-06",
+      "title": "Job-Flow-Orchestrierung mit Report",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "job_flow.py laedt Profil und Portal-Profile, crawlt lokale Portale ueber Policy+Validierung, matched und schreibt berichte/job-report.md - Funktion lauf() vorhanden.",
+        "python -m unterricht.job_flow laeuft vollstaendig lokal und ohne externe Abhaengigkeiten - kind=real-Portale werden in crawl_lokale_portale explizit uebersprungen (nur kind==\"local\").",
+        "Flow ist als Tests gegen DemoServer abgesichert (Suche, Match, Reportdatei) - tests/test_job_flow.py::LaufTest, Teil der 44 gruenen Tests."
+      ]
+    },
+    {
+      "id": "JA-07",
+      "title": "Eigener MCP-Server mit Tools",
+      "status": "done",
+      "priority": "high",
+      "risk": "high",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "job_agent_mcp.py exponiert genau 6 Tools: lade_profil, liste_portale, suche_angebote, bewerte_angebote, erstelle_bericht, analysiere_echtes_portal - verifiziert per grep auf @mcp.tool() (6 Treffer, Zeilen 91/97/114/128/139/154).",
+        "Server laeuft als lokaler stdio-MCP-Server und importiert ohne fest installiertes opencode-Verzeichnis - main()/mcp.run() vorhanden, sys.path-Anpassung fuer eigenstaendigen Import.",
+        "analysiere_echtes_portal ist standardmaessig Dry-Run und verlangt fuer echte Netzwerkzugaenge ALLOW_EXTERNAL_PORTALS=1 - delegiert an job_flow.crawle_echtes_portal, das dieses Gate durchsetzt.",
+        "Tools sind direkt testbar; Smoke-Test prueft Registrierung der Toolnamen - tests/test_job_mcp.py vorhanden."
+      ]
+    },
+    {
+      "id": "JA-08",
+      "title": "opencode-Agent, Skill und Konfiguration",
+      "status": "done",
+      "priority": "high",
+      "risk": "medium",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        ".opencode/opencode.json registriert den MCP-Server job-crawler als lokalen stdio-Server - Datei vorhanden.",
+        ".opencode/agent/job-agent.md definiert einen Subagenten mit klarer Rolle und Arbeitsweise - Datei vorhanden (46 Zeilen).",
+        ".opencode/skills/job-crawler/SKILL.md beschreibt den Workflow und die Sicherheitsgrenzen (lokal zuerst, echte Portale gated) - Datei vorhanden (77 Zeilen)."
+      ]
+    },
+    {
+      "id": "JA-09",
+      "title": "MVP, Doku und Todo-Evidenz",
+      "status": "done",
+      "priority": "medium",
+      "risk": "low",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "mvps/job_matching.py ist ein kleines, direkt startbares Matching-Beispiel - Datei vorhanden.",
+        "README.md dokumentiert den JOB-Agenten, Startkommandos und die Sicherheitsgrenzen inklusive der Erweiterung um Indeed/Stepstone/Instaffo - Abschnitt 'JOB-Agent (Skills + MCP)' aktuell.",
+        "Todo-Datei ist konsistent, validiert und alle Abschlusskriterien sind verifiziert - dieses Dokument, gegen todos/todo.track.schema.json validiert."
+      ]
+    },
+    {
+      "id": "JAP-01",
+      "title": "Indeed und Stepstone als deaktivierte Portal-Profile anlegen",
+      "status": "done",
+      "priority": "medium",
+      "risk": "high",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "profiles/portals/indeed.yaml und profiles/portals/stepstone.yaml nutzen kind=real, enabled=false - Dateien vorhanden, verifiziert per ls und Inhalt.",
+        "Beide Profile enthalten bewusst keine selectors, sodass crawle_echtes_portal einen echten Lauf auch bei enabled=true und allow_external=true mit ValueError ablehnt - erzwungen durch job_flow.crawle_echtes_portal (prueft portal.selectors.input_label).",
+        "Tests decken Laden, Deaktivierung, Dry-Run-Plan und die Selector-Blockade ab - tests/test_job_flow.py::EchtePortaleIndeedStepstoneTest (3 Tests), Teil der 44 gruenen Tests (Stand 2026-08-12)."
+      ]
+    },
+    {
+      "id": "JAP-02",
+      "title": "Instaffo-Entscheidung dokumentieren",
+      "status": "done",
+      "priority": "low",
+      "risk": "low",
+      "progress_percent": 100,
+      "acceptance_criteria": [
+        "profiles/portals/README.md erklaert, warum Instaffo kein Portal-Profil bekommt (B2B-Matching statt durchsuchbarer Stellenliste, keine Zugangsdaten im Unterrichtslabor) - Datei vorhanden.",
+        "Keine YAML-Datei fuer Instaffo wurde angelegt - verifiziert per ls profiles/portals/ (nur acme-karriere, jobvermittlung, beispiel-karriere, indeed, stepstone als *.yaml)."
+      ]
+    }
+  ],
+  "critical_path_tasks": ["JA-01", "JA-03", "JA-06", "JA-07", "JA-08", "JAP-01"],
+  "tasks_status_summary": {
+    "total": 11,
+    "by_status": {
+      "todo": 0,
+      "in_progress": 0,
+      "partial": 0,
+      "blocked": 0,
+      "done": 11
+    },
+    "progress_percent_done": 100,
+    "by_priority": {
+      "high": 6,
+      "medium": 4,
+      "low": 1
+    },
+    "by_risk": {
+      "low": 4,
+      "medium": 5,
+      "high": 2
+    },
+    "critical_path": {
+      "total": 6,
+      "done": 6,
+      "remaining": 0
+    },
+    "milestones": {
+      "total": 6,
+      "todo": 0,
+      "in_progress": 0,
+      "blocked": 0,
+      "done": 6
+    }
+  },
+  "tasks_type_summary": {
+    "total": 11,
+    "by_type": {
+      "domain": {
+        "total": 3,
+        "done": 3,
+        "partial": 0,
+        "blocked": 0,
+        "progress_percent": 100,
+        "by_status": {"todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 3}
+      },
+      "infrastructure": {
+        "total": 5,
+        "done": 5,
+        "partial": 0,
+        "blocked": 0,
+        "progress_percent": 100,
+        "by_status": {"todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 5}
+      },
+      "integration": {
+        "total": 2,
+        "done": 2,
+        "partial": 0,
+        "blocked": 0,
+        "progress_percent": 100,
+        "by_status": {"todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 2}
+      },
+      "documentation": {
+        "total": 1,
+        "done": 1,
+        "partial": 0,
+        "blocked": 0,
+        "progress_percent": 100,
+        "by_status": {"todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 1}
+      }
+    }
+  },
+  "progress_summary": {
+    "state": "done",
+    "todo_remaining": 0,
+    "in_progress": 0,
+    "partial": 0,
+    "blocked": 0,
+    "done": 11
+  },
+  "summary_notes": [
+    "Konsolidiert todos/archiv/job-agent.json (JA-01..JA-09) und todos/archiv/job-agent-echte-portale.json (JAP-01..JAP-02) unveraendert in Inhalt und IDs; beide Einzeldateien bleiben als historische Evidenz erhalten und wurden nicht geloescht.",
+    "Alle Akzeptanzkriterien wurden am 2026-08-12 gegen den aktuellen Quellcode nachgeprueft: Dateiexistenz per ls, MCP-Tool-Anzahl per grep (6 Treffer), vollstaendiger Testlauf per python -m unittest discover -s unterricht/tests -t unterricht.",
+    "Verifiziert: compileall clean, 44/44 Tests gruen (41 aus dem Basis-Track + 3 aus der Portal-Erweiterung EchtePortaleIndeedStepstoneTest).",
+    "Bewusst NICHT umgesetzt und daher nicht als Task enthalten: funktionierende Playwright-Selectors gegen echte Indeed-/Stepstone-Seiten (AGB-Verstoss, unverifizierbare Selektoren) sowie ein Instaffo-Portal-Profil (passt nicht zum B2B-Matching-Produktmodell).",
+    "Bekannte offene Punkte fuer echte Datenquellen (kein Task in diesem Dokument, da noch nicht beauftragt): discovery.py ist fest auf das Lern-API-Muster POST .../api/search zugeschnitten; policy.py prueft nur exakte allowed_hosts/allowed_paths ohne Query-Parameter; fuer eine legale echte Anbindung (z. B. Bundesagentur-fuer-Arbeit-Jobsuche-API oder Adzuna/Arbeitnow) fehlen Response-Schema, Mapping auf JobAngebot und Policy-Eintraege.",
+    "Bekannte Baseline: Playwright ist in der aktuellen Umgebung nicht installiert; full_flow und Playwright-MVPs benoetigen die Installation (Umgebungslimit, nicht durch diese Aenderungen verursacht)."
+  ]
+}

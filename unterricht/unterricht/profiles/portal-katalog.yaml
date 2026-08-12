@@ -1,0 +1,174 @@
+- portal_id: stepstone
+  name: StepStone
+  homepage: https://www.stepstone.de
+  kategorie: jobboerse
+  zugangsart: browser_oeffentlich
+  status: aktiv
+  profil_id: stepstone
+  hinweis: Öffentliche Trefferliste ist ohne Konto angebunden; Login bleibt optional.
+
+- portal_id: arbeitnow
+  name: Arbeitnow
+  homepage: https://www.arbeitnow.com
+  kategorie: aggregator
+  zugangsart: oeffentliche_api
+  status: aktiv
+  profil_id: arbeitnow
+  dokumentation_url: https://www.arbeitnow.com/blog/job-board-api
+  hinweis: Öffentliche JSON-API ohne API-Schlüssel; Ergebnisse werden lokal gefiltert.
+
+- portal_id: remotive
+  name: Remotive
+  homepage: https://remotive.com
+  kategorie: remote_jobboerse
+  zugangsart: oeffentliche_api
+  status: aktiv
+  profil_id: remotive
+  dokumentation_url: https://remotive.com/remote-jobs/api
+  attribution: Remotive
+  hinweis: Öffentliche API für Remote-Stellen; Rücklink und Quellenangabe sind erforderlich.
+
+- portal_id: weworkremotely
+  name: We Work Remotely
+  homepage: https://weworkremotely.com
+  kategorie: remote_jobboerse
+  zugangsart: rss_feed
+  status: aktiv
+  profil_id: weworkremotely
+  dokumentation_url: https://weworkremotely.com/remote-job-rss-feed
+  attribution: We Work Remotely
+  hinweis: Offizieller öffentlicher RSS-Feed; Rücklinks bleiben unverändert erhalten.
+
+- portal_id: indeed
+  name: Indeed
+  homepage: https://de.indeed.com
+  kategorie: aggregator
+  zugangsart: partner_api
+  status: gesperrt
+  profil_id: indeed
+  bedingungen_url: https://www.indeed.com/legal
+  hinweis: Kein Scraper; automatisiertes Auslesen benötigt eine eigene schriftliche Autorisierung.
+
+- portal_id: instaffo
+  name: Instaffo
+  homepage: https://www.instaffo.com
+  kategorie: matching_plattform
+  zugangsart: interaktives_konto
+  status: manuell
+  dokumentation_url: https://www.instaffo.com/en/talent
+  hinweis: Kontobasiertes Matching und Chat statt einer öffentlichen Stellenliste.
+
+- portal_id: linkedin
+  name: LinkedIn Jobs
+  homepage: https://www.linkedin.com/jobs
+  kategorie: berufsnetzwerk
+  zugangsart: partner_api
+  status: partnerzugang
+  bedingungen_url: https://www.linkedin.com/legal/crawling-terms
+  hinweis: Automatisches Crawling nur mit ausdrücklicher LinkedIn-Erlaubnis; sonst manuell nutzen.
+
+- portal_id: arbeitsagentur
+  name: Bundesagentur für Arbeit
+  homepage: https://www.arbeitsagentur.de/jobsuche
+  kategorie: oeffentliche_vermittlung
+  zugangsart: browser_oeffentlich
+  status: nicht_angebunden
+  bedingungen_url: https://www.arbeitsagentur.de/nutzungsbedingungen
+  hinweis: Öffentliche Jobsuche vorhanden; ein stabiler Stellen-Adapter ist noch zu kalibrieren.
+
+- portal_id: xing
+  name: XING Jobs
+  homepage: https://www.xing.com/jobs
+  kategorie: berufsnetzwerk
+  zugangsart: interaktives_konto
+  status: manuell
+  bedingungen_url: https://www.xing.com/legal/api/pages/terms_and_conditions/xing.html
+  hinweis: Derzeit nur als manueller Konto-Workflow katalogisiert.
+
+- portal_id: jobware
+  name: Jobware
+  homepage: https://www.jobware.de
+  kategorie: jobboerse
+  zugangsart: manuelle_websuche
+  status: nicht_angebunden
+  hinweis: Relevante deutsche Jobbörse; Selektoren und Nutzungsweg sind noch nicht geprüft.
+
+- portal_id: stellenanzeigen
+  name: stellenanzeigen.de
+  homepage: https://www.stellenanzeigen.de
+  kategorie: jobboerse
+  zugangsart: manuelle_websuche
+  status: nicht_angebunden
+  hinweis: Relevante deutsche Jobbörse; Selektoren und Nutzungsweg sind noch nicht geprüft.
+
+- portal_id: meinestadt
+  name: meinestadt.de Jobs
+  homepage: https://jobs.meinestadt.de
+  kategorie: jobboerse
+  zugangsart: manuelle_websuche
+  status: nicht_angebunden
+  hinweis: Lokale Stellenbörse; Selektoren und Nutzungsweg sind noch nicht geprüft.
+
+- portal_id: monster
+  name: Monster
+  homepage: https://www.monster.de
+  kategorie: jobboerse
+  zugangsart: manuelle_websuche
+  status: nicht_angebunden
+  hinweis: Jobbörse; Selektoren und Nutzungsweg sind noch nicht geprüft.
+
+- portal_id: germantechjobs
+  name: GermanTechJobs
+  homepage: https://germantechjobs.de
+  kategorie: jobboerse
+  zugangsart: manuelle_websuche
+  status: nicht_angebunden
+  hinweis: Auf IT-Stellen spezialisierte Jobbörse; noch kein öffentlicher Lese-Adapter verifiziert.
+
+- portal_id: jobvector
+  name: jobvector
+  homepage: https://www.jobvector.de
+  kategorie: jobboerse
+  zugangsart: manuelle_websuche
+  status: nicht_angebunden
+  hinweis: Fachstellenbörse; Selektoren und Nutzungsweg sind noch nicht geprüft.
+
+- portal_id: absolventa
+  name: Absolventa
+  homepage: https://www.absolventa.de
+  kategorie: jobboerse
+  zugangsart: manuelle_websuche
+  status: nicht_angebunden
+  hinweis: Einstiegs- und Nachwuchsstellen; Selektoren und Nutzungsweg sind noch nicht geprüft.
+
+- portal_id: honeypot
+  name: Honeypot
+  homepage: https://www.honeypot.io
+  kategorie: matching_plattform
+  zugangsart: interaktives_konto
+  status: manuell
+  hinweis: Talent-Matching wird als interaktiver Konto-Workflow behandelt.
+
+- portal_id: join
+  name: JOIN Jobs
+  homepage: https://join.com
+  kategorie: aggregator
+  zugangsart: manuelle_websuche
+  status: nicht_angebunden
+  hinweis: Stellen aus JOIN-Karriereseiten fließen bereits teilweise über Arbeitnow ein.
+
+- portal_id: glassdoor
+  name: Glassdoor Jobs
+  homepage: https://www.glassdoor.de/Job
+  kategorie: jobboerse
+  zugangsart: interaktives_konto
+  status: manuell
+  hinweis: Derzeit nur als manuelle Web- beziehungsweise Konto-Suche katalogisiert.
+
+- portal_id: google_jobs
+  name: Google Jobs
+  homepage: https://www.google.de/search?q=Jobs
+  kategorie: suchoberflaeche
+  zugangsart: manuelle_websuche
+  status: manuell
+  hinweis: Suchoberfläche und kein eigenständiger Stellenanbieter; Links führen zu Originalquellen.

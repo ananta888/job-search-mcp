@@ -1,0 +1,26 @@
+name: beispiel-karriere
+kind: real
+enabled: false
+base_url: https://www.beispiel-firma.de/karriere
+portal_id: beispiel
+search_path: /stellen
+
+# Ein echtes Karriereportal ist NUR ein optionales, isoliertes Beispiel:
+# - kind: real  -> externer Host, andere ToS und Blocking-Risiken
+# - enabled: false -> der JOB-Agent crawlt dieses Portal standardmaessig NICHT
+# - ALLOW_EXTERNAL_PORTALS=1 ist zusaetzlich erforderlich
+# - selectors: nur noetig, wenn die Seite per UI-Discovery (Playwright) durchsucht wird
+policy:
+  allowed_hosts:
+    - www.beispiel-firma.de
+  allowed_paths:
+    - /stellen
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json
+
+selectors:
+  input_label: Suche
+  submit_role: button
+  submit_name: Suchen
+  output_css: "#job-results"

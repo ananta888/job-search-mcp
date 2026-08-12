@@ -1,0 +1,12 @@
+{
+  "name": "Java-Backend-Entwickler",
+  "suchbegriffe": ["backend", "java", "spring", "softwareentwickler"],
+  "skills_pflicht": ["java", "spring", "sql"],
+  "skills_wunsch": ["docker", "kubernetes", "rest", "git"],
+  "orte": ["Berlin", "remote"],
+  "arbeitsmodelle": ["remote", "hybrid"],
+  "gehalt_min": 65000,
+  "gehalt_max": 95000,
+  "sprachen": ["deutsch", "englisch"],
+  "min_erfahrung_jahre": 3
+}

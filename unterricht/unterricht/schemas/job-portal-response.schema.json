@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Job-Portalantwort",
+  "description": "Struktur einer Portalantwort der lokalen Job-Sandbox.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["portal", "jobs"],
+  "properties": {
+    "portal": {"type": "string", "minLength": 1},
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "firma", "titel", "ort", "arbeitsmodell", "skills"],
+        "properties": {
+          "id": {"type": ["string", "integer"]},
+          "firma": {"type": "string"},
+          "titel": {"type": "string"},
+          "ort": {"type": "string"},
+          "arbeitsmodell": {"type": "string"},
+          "skills": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "gehalt_min": {"type": ["integer", "null"], "minimum": 0},
+          "gehalt_max": {"type": ["integer", "null"], "minimum": 0},
+          "sprachen": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "erfahrungsjahre": {"type": ["integer", "null"], "minimum": 0},
+          "beschreibung": {"type": "string"}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+name: arbeitnow
+kind: real
+enabled: true
+base_url: https://www.arbeitnow.com
+portal_id: arbeitnow
+search_path: /api/job-board-api
+
+policy:
+  allowed_hosts:
+    - www.arbeitnow.com
+  allowed_paths:
+    - /api/job-board-api
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json
+
+feed:
+  adapter: arbeitnow
+  endpoint: https://www.arbeitnow.com/api/job-board-api
+  max_treffer: 20
