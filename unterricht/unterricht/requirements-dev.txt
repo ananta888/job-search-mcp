@@ -1,5 +1,0 @@
--r requirements-job-search.txt
-
-mypy>=1.17,<2
-ruff>=0.12,<1
-types-PyYAML>=6.0.12

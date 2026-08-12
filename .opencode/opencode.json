@@ -6,7 +6,7 @@
       "command": [
         "bash",
         "-lc",
-        "if [ -x .venv/bin/python ]; then exec .venv/bin/python unterricht/unterricht/job_search_mcp.py; else exec ../../.venv/bin/python job_search_mcp.py; fi"
+        "if [ -x .venv/bin/job-search-mcp ]; then exec .venv/bin/job-search-mcp; elif command -v job-search-mcp >/dev/null 2>&1; then exec job-search-mcp; else export PYTHONPATH=src; exec python -m job_search_mcp.interfaces.mcp_server; fi"
       ],
       "cwd": ".",
       "enabled": true,

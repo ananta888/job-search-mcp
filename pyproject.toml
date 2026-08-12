@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "job-search-mcp"
+version = "0.2.0"
+description = "Policy-aware multi-portal job search MCP server for OpenCode"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "ananta888" }]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+  "camoufox==0.5.4",
+  "cryptography>=46,<51",
+  "fastapi>=0.116,<1",
+  "httpx>=0.28,<1",
+  "jinja2>=3.1,<4",
+  "jsonschema>=4.25,<5",
+  "mcp>=1.26,<2",
+  "playwright==1.60.0",
+  "pydantic>=2.12,<3",
+  "python-multipart>=0.0.20,<1",
+  "PyYAML>=6,<7",
+  "structlog>=25,<26",
+  "uvicorn>=0.35,<1",
+]
+
+[project.optional-dependencies]
+agent = ["browser-use==0.13.7"]
+selenium = ["selenium>=4.35,<5"]
+dev = [
+  "build>=1.3,<2",
+  "mypy>=1.17,<2",
+  "ruff>=0.12,<1",
+  "types-jsonschema>=4.25",
+  "types-PyYAML>=6.0.12",
+]
+
+[project.scripts]
+job-search-mcp = "job_search_mcp.interfaces.mcp_server:main"
+job-search-demo = "job_search_mcp.interfaces.demo_app:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+job_search_mcp = [
+  "interfaces/templates/*.html",
+  "resources/profiles/*.json",
+  "resources/profiles/*.yaml",
+  "resources/profiles/portals/*.yaml",
+  "resources/schemas/*.json",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src/job_search_mcp"]
+ignore_missing_imports = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true

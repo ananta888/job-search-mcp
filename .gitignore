@@ -10,6 +10,13 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Generated reports
+reports/*
+!reports/.gitkeep
 
 # JavaScript package installations
 node_modules/
