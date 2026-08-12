@@ -75,6 +75,7 @@
       ],
       "verification_evidence": [
         "111 Unittests, Ruff Check, Ruff Format für 67 Dateien, Mypy für 28 Produktionsdateien, compileall und pip check sind grün.",
+        "Der erste GitHub-Actions-Lauf deckte zwei hostabhängige DISPLAY-Annahmen in Tests auf; nach deterministischem Mock der Anzeigeerkennung laufen die drei betroffenen Tests und alle 111 Tests auch ohne DISPLAY, Wayland und WSL-Markierung grün.",
         "python -m build erzeugte sdist und Wheel; eine frische Installation des Wheels lud acht Portalprofile, 20 Katalogeinträge und das Standardprofil außerhalb des Checkouts.",
         "Der installierte stdio-Einstieg registrierte 13 MCP-Werkzeuge; mehrportal_suche und liste_portale waren vorhanden und liste_portale lief ohne Toolfehler.",
         "Alle 14 lokalen Kernbeispiele liefen einschließlich Playwright, CDP, Session State und vollständigem Crawler-Flow erfolgreich."

@@ -32,6 +32,13 @@ def _temp_state_dir():
     return tmp
 
 
+VERFUEGBARE_ANZEIGE = {
+    "verfuegbar": True,
+    "technik": "WSLg/X11",
+    "hinweis": "Testanzeige verfügbar.",
+}
+
+
 class _UmgebungsTest(unittest.TestCase):
     def setUp(self):
         self._umgebung = {
@@ -82,7 +89,11 @@ class PortalToolsTest(_UmgebungsTest):
     def test_browser_status_listet_nur_echte_portale(self):
         tmp = _temp_state_dir()
         try:
-            status = browser_status()
+            with mock.patch(
+                "job_search_mcp.interfaces.mcp_server._sichtbarer_browser_status",
+                return_value=VERFUEGBARE_ANZEIGE,
+            ):
+                status = browser_status()
             self.assertIn("engines", status)
             self.assertTrue(status["sichtbarer_browser"]["verfuegbar"])
             self.assertEqual(status["sichtbarer_browser"]["technik"], "WSLg/X11")
@@ -141,9 +152,15 @@ class PortalToolsTest(_UmgebungsTest):
         tmp = _temp_state_dir()
         _freigabe()
         try:
-            with mock.patch(
-                "job_search_mcp.interfaces.mcp_server._manager"
-            ) as manager_factory:
+            with (
+                mock.patch(
+                    "job_search_mcp.interfaces.mcp_server._sichtbarer_browser_status",
+                    return_value=VERFUEGBARE_ANZEIGE,
+                ),
+                mock.patch(
+                    "job_search_mcp.interfaces.mcp_server._manager"
+                ) as manager_factory,
+            ):
                 manager = manager_factory.return_value
                 manager.anmeldedaten_vorhanden.return_value = False
                 manager.login_interaktiv.return_value = {"status": "eingeloggt"}
