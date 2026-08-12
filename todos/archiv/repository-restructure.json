@@ -21,7 +21,7 @@
       "id": "M2",
       "title": "Verifizieren und veröffentlichen",
       "task_ids": ["RRS-03", "RRS-04"],
-      "status": "in_progress"
+      "status": "done"
     }
   ],
   "tasks": [
@@ -83,10 +83,10 @@
     {
       "id": "RRS-04",
       "title": "Geprüften Umbau veröffentlichen",
-      "status": "in_progress",
+      "status": "done",
       "priority": "high",
       "risk": "medium",
-      "progress_percent": 40,
+      "progress_percent": 100,
       "acceptance_criteria": [
         "Diff und Repository enthalten keine Secrets oder lokalen Laufzeitdateien.",
         "Der vollständige Umbau ist auf einem Agent-Branch committed und gepusht.",
@@ -95,31 +95,44 @@
       "verification_evidence": [
         "git diff --check ist grün; ein Muster-Scan fand keine privaten Schlüssel, GitHub-Tokens, AWS-Schlüssel oder hart codierten Passwort-/Tokenwerte.",
         "Build-, Cache-, virtuelle Umgebungs-, Node- und Laufzeitdateien sind ignoriert; der Veröffentlichungs-Diff besteht aus der beabsichtigten Repository-Neuordnung.",
-        "Commit, Push und Draft-PR folgen nach der finalen Staging-Kontrolle."
+        "Commit 18470b3 enthält den geprüften Umbau und ist auf origin/agent/restructure-repository veröffentlicht.",
+        "Draft-PR #1 gegen main dokumentiert Struktur, Motivation, Prüfungen und die bekannte Drittanbieterwarnung: https://github.com/ananta888/job-search-mcp/pull/1"
       ]
     }
   ],
   "critical_path_tasks": ["RRS-01", "RRS-02", "RRS-03", "RRS-04"],
   "tasks_status_summary": {
     "total": 4,
-    "by_status": {"todo": 0, "in_progress": 1, "partial": 0, "blocked": 0, "done": 3},
-    "progress_percent_done": 85,
+    "by_status": {"todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 4},
+    "progress_percent_done": 100,
     "by_priority": {"high": 4, "medium": 0, "low": 0},
     "by_risk": {"high": 2, "medium": 2, "low": 0},
-    "critical_path": {"total": 4, "done": 3, "remaining": 1},
-    "milestones": {"total": 2, "todo": 0, "in_progress": 1, "blocked": 0, "done": 1}
+    "critical_path": {"total": 4, "done": 4, "remaining": 0},
+    "milestones": {"total": 2, "todo": 0, "in_progress": 0, "blocked": 0, "done": 2}
   },
   "progress_summary": {
-    "state": "in_progress",
+    "state": "done",
     "todo_remaining": 0,
-    "in_progress": 1,
+    "in_progress": 0,
     "partial": 0,
     "blocked": 0,
-    "done": 3
+    "done": 4
   },
   "summary_notes": [
     "Charakterisierung vor dem Umbau: 107 Tests waren auf main grün.",
     "Der Standard-src-Aufbau mit Paketressourcen ersetzt die Verschachtelung vollständig und bildet fachliche sowie technische Verantwortungen ab.",
-    "Die vollständige Testsuite enthält jetzt 111 Tests. Die einmal ausgegebene IncompleteFieldDefinitionWarning stammt aus pydantic-settings im MCP-Abhängigkeitsbaum; alle betroffenen Prüfungen und der echte MCP-Handshake sind erfolgreich."
+    "Die vollständige Testsuite enthält jetzt 111 Tests. Die einmal ausgegebene IncompleteFieldDefinitionWarning stammt aus pydantic-settings im MCP-Abhängigkeitsbaum; alle betroffenen Prüfungen und der echte MCP-Handshake sind erfolgreich.",
+    "Abschluss: Commit 18470b3 ist gepusht und Draft-PR #1 wurde gegen main geöffnet."
+  ],
+  "end_summaries": [
+    {
+      "summary_id": "RRS-END-01",
+      "title": "Abschluss 2026-08-12",
+      "items": [
+        "Die doppelte unterricht-Struktur wurde durch ein installierbares src-Paket mit klaren fachlichen und technischen Bereichen ersetzt.",
+        "Tests, Beispiele, statische Prüfungen, Build, frische Wheel-Installation und echter stdio-MCP-Handshake sind erfolgreich.",
+        "Der vollständige Umbau ist auf agent/restructure-repository veröffentlicht und als Draft-PR #1 gegen main dokumentiert."
+      ]
+    }
   ]
 }
