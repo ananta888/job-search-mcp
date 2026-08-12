@@ -30,3 +30,6 @@ abgeflacht, sondern durch ein installierbares Paket ersetzt. Eine vollständig
 flache Modulsammlung wäre beim aktuellen Umfang schwer navigierbar; noch mehr
 Schichten oder abstrakte Repositories hätten dagegen keinen zusätzlichen
 fachlichen Nutzen.
+
+Ausführliche Komponenten-, Klassen-, Sequenz- und BPMN-Diagramme stehen in der
+[Diagrammübersicht](../architecture/README.md).

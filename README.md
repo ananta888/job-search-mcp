@@ -78,7 +78,8 @@ reports/             # lokal erzeugte Berichte
 
 Mehr Details stehen im [Leitfaden](docs/guide.md), in der
 [Architekturbeschreibung](docs/architecture.md) und in der
-[Portalübersicht](docs/portals.md).
+[Portalübersicht](docs/portals.md). UML- und BPMN-Sichten liegen unter
+[architecture/](architecture/README.md).
 
 ## Sicherheitsgrenzen
 
