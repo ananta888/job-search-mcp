@@ -90,3 +90,8 @@ Mehr Details stehen im [Leitfaden](docs/guide.md), in der
 - Captchas, 2FA und Bot-Schutz werden nicht umgangen.
 - Credentials und Browserzustände liegen außerhalb des Repositories im lokalen
   State-Verzeichnis.
+
+## Lizenz
+
+Dieses Projekt steht unter der [BSD-3-Clause-Lizenz](LICENSE). Abhängigkeiten
+und übernommene Fremdkomponenten behalten ihre jeweiligen Lizenzen.
