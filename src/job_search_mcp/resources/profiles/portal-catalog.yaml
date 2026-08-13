@@ -97,7 +97,7 @@
   zugangsart: browser_oeffentlich
   status: aktiv
   profil_id: jobriver
-  hinweis: Öffentlich zugängliche, servergerenderte Trefferliste; robots.txt erlaubt Crawling ausdrücklich. Stellenkarten werden ohne Suchparameter geladen und lokal nach Profil gefiltert.
+  hinweis: 'Öffentlich zugängliche, servergerenderte Trefferliste; robots.txt erlaubt Crawling ausdrücklich, die Ortsfilter-API ist mit "Disallow: /api" gesperrt. Stellenkarten werden ohne Suchparameter geladen und lokal nach Suchbegriff gefiltert; die Ortsrelevanz bewertet das Profil-Scoring.'
 
 - portal_id: interamt
   name: Interamt

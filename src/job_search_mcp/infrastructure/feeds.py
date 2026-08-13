@@ -381,7 +381,10 @@ def _jobriver(
             skills=[],
             beschreibung="",
         )
-        if angebot["id"] and angebot["titel"] and _passt(angebot, query, ort):
+        # Jobriver bietet ohne die in robots.txt gesperrte /api/ keine
+        # serverseitige Ortsfilterung; der Adapter filtert daher nur nach
+        # Suchbegriff, die Ortsrelevanz bewertet das Profil-Scoring.
+        if angebot["id"] and angebot["titel"] and _passt(angebot, query, None):
             angebote.append(angebot)
     return angebote
 

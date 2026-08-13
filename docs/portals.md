@@ -64,10 +64,12 @@ der optionale browser-use-Fallback bekommt keine Portalpasswörter.
   und Ort gefiltert.
 - `jobriver.yaml` liest die öffentlich zugängliche, servergerenderte
   Trefferliste `/stellenangebote` (jobriver.de), deren `robots.txt` Crawling
-  ausdrücklich erlaubt. Es gibt keine öffentliche Such-API: Die Seite wird
+  ausdrücklich erlaubt. Eine serverseitige Ortsfilterung gibt es ohne die in
+  `robots.txt` gesperrte API (`Disallow: /api/`) nicht; die Seite wird daher
   ohne Suchparameter geladen, über `<link rel="next">` bzw.
-  `/stellenangebote/seite/{n}` paginiert und die lokale Trefferliste wird
-  nach Suchbegriff und Ort gefiltert. Die Stellenkarten tragen die Klassen
+  `/stellenangebote/seite/{n}` paginiert und die Trefferliste lokal nach
+  Suchbegriff gefiltert (die Ortsrelevanz bewertet anschließend das
+  Profil-Scoring). Die Stellenkarten tragen die Klassen
   `alle-jobs-card-title`, `alle-jobs-card-company` und
   `alle-jobs-card-meta`; Ort und Arbeitsmodell (Remote/Hybrid) stehen im
   Meta-Bereich der Karte.

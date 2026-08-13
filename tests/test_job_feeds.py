@@ -324,9 +324,9 @@ class FeedSucheTest(unittest.TestCase):
                 return httpx.Response(
                     200,
                     text=self._jobriver_karte(
-                        "automatisierungsexperte",
+                        "ki-automatisierungsexperte",
                         "456",
-                        "Automatisierungsexperte (m/w/d)",
+                        "KI Automatisierungsexperte (m/w/d)",
                         "Prozess AG",
                         "Karlsruhe",
                         "Remote",
@@ -365,7 +365,7 @@ class FeedSucheTest(unittest.TestCase):
             angebote = suche_feed(_portal("jobriver"), "ki", "Heidelberg", client)
 
         self.assertEqual(len(anfragen), 2)
-        self.assertEqual(len(angebote), 1)
+        self.assertEqual(len(angebote), 2)
         treffer = angebote[0]
         self.assertEqual(treffer["portal"], "jobriver")
         self.assertEqual(treffer["titel"], "Senior KI-Entwickler (m/w/d)")
@@ -373,6 +373,12 @@ class FeedSucheTest(unittest.TestCase):
         self.assertEqual(treffer["ort"], "Heidelberg")
         self.assertEqual(treffer["arbeitsmodell"], "hybrid")
         self.assertTrue(treffer["link"].endswith("/jobs/senior-ki-entwickler-123"))
+        karlsruhe = angebote[1]
+        self.assertEqual(karlsruhe["ort"], "Karlsruhe")
+        self.assertEqual(karlsruhe["arbeitsmodell"], "remote")
+        self.assertTrue(
+            karlsruhe["link"].endswith("/jobs/ki-automatisierungsexperte-456")
+        )
 
 
     def test_freelancermap_nutzt_query_city_und_mappt_projektfelder(self):
