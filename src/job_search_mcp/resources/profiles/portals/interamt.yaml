@@ -1,0 +1,25 @@
+name: Interamt
+kind: real
+enabled: true
+base_url: https://www.interamt.de
+portal_id: interamt
+search_path: /koop/app/stellensuche
+
+policy:
+  allowed_hosts:
+    - interamt.de
+    - www.interamt.de
+  allowed_paths:
+    - /koop/app/stellensuche
+    - /koop/app/trefferliste
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json
+
+feed:
+  adapter: interamt
+  endpoint: https://www.interamt.de/koop/app/stellensuche
+  max_treffer: 10
+  headers:
+    accept: text/html,application/xhtml+xml
+  attribution: Interamt

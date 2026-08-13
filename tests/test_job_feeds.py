@@ -451,6 +451,130 @@ class FeedSucheTest(unittest.TestCase):
         self.assertTrue(treffer["link"].endswith("/projekt/ki-automatisierungsexperte"))
 
 
+class InteramtTest(unittest.TestCase):
+    def _form_seite(self) -> str:
+        return (
+            '<html><body><form action="./stellensuche?0-1.-'
+            'tabOneContentContainer-oneContent-1-item-form" method="post">'
+            '<input type="radio" name="beschaeftigungDauerContainer:'
+            'stellensucheFilterAttributes.beschaeftigungDauer:inputCell:'
+            'radioGroup" value="radio29" checked="checked">'
+            '<input type="radio" name="stellensucheFilterAttributes.teilzeit:'
+            'inputCell:radioGroup" value="radio35" checked="checked">'
+            '<input type="text" name="stellensucheFilterAttributes.'
+            'suchtextContainer:stellensucheFilterAttributes.suchText">'
+            '<button name="navFooter:navFooter_body:submitRow:actions:0:'
+            'button" type="submit">Detailsuche</button>'
+            "</form></body></html>"
+        )
+
+    def _treffer_seite(self) -> str:
+        def zeile(stelle: str, behoerde: str, titel: str, ort: str) -> str:
+            return (
+                f'<tr class="ia-e-table__row"><td class="ia-e-table__col" '
+                f'data-field="StellenangebotId" data-label="ID"><span>{stelle}'
+                f'</span></td>'
+                f'<td class="ia-e-table__col" data-field="Behoerde" '
+                f'data-label="Beh&ouml;rde/Abteilung">{behoerde}</td>'
+                f'<td class="ia-e-table__col" data-field="Stellenbezeichnung" '
+                f'data-label="Bezeichnung">{titel}</td>'
+                f'<td class="ia-e-table__col" data-field="PLZOrte" '
+                f'data-label="PLZ Ort">{ort}</td>'
+                f'<td class="ia-e-table__col" data-field="Dienstort" '
+                f'data-label="Dienstort">Hybrid</td>'
+                f'<td class="ia-e-table__col" data-field="TarifEbeneDisplayString" '
+                f'data-label="Entgelt">A11 TV-L E 11</td>'
+                f'<td class="ia-e-table__col" data-field="Bewerbungsfrist" '
+                f'data-label="Frist">21.09.2026</td></tr>'
+            )
+
+        return (
+            '<html><body><h1>Stellen&uuml;bersicht: <strong>42 Angebote</strong>'
+            " gefunden</h1><table>"
+            '<tr class="ia-e-table__row"><th class="ia-e-table__headcol" '
+            'data-field="StellenangebotId">ID</th></tr>'
+            + zeile(
+                "1480611",
+                "Stadt Karlsruhe",
+                "Digitalisierungsmanager (m/w/d)",
+                "76131 Karlsruhe",
+            )
+            + zeile(
+                "1480605",
+                "Bezirksamt Berlin",
+                "Sachbearbeitung (m/w/d)",
+                "14163 Berlin",
+            )
+            + '<tr class="ia-e-table__row"><th class="ia-e-table__col">Anbieter'
+            "</th><td class=\"ia-e-table__col\">Cookie-Banner</td></tr>"
+            + "</table></body></html>"
+        )
+
+    def test_interamt_schickt_formular_und_normiert_treffer(self):
+        anfragen: list[httpx.Request] = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            anfragen.append(request)
+            if request.method == "GET":
+                self.assertEqual(request.url.path, "/koop/app/stellensuche")
+                return httpx.Response(200, text=self._form_seite())
+            self.assertEqual(request.method, "POST")
+            self.assertIn(
+                "/koop/app/stellensuche?", str(request.url)
+            )
+            from urllib.parse import parse_qs
+
+            daten = parse_qs(
+                request.read().decode(), keep_blank_values=True
+            )
+            self.assertEqual(
+                daten["stellensucheFilterAttributes.suchtextContainer:"
+                      "stellensucheFilterAttributes.suchText"],
+                ["ki"],
+            )
+            self.assertEqual(
+                daten["stellensucheFilterAttributes.plzDistance:PLZ"],
+                ["Karlsruhe"],
+            )
+            self.assertEqual(
+                daten["stellensucheFilterAttributes.plzDistance:"
+                      "stellensucheFilterAttributes.maxEntfernung"],
+                ["50"],
+            )
+            self.assertIn(
+                "navFooter:navFooter_body:submitRow:actions:0:button",
+                daten,
+            )
+            self.assertEqual(
+                request.headers["origin"], "https://www.interamt.de"
+            )
+            self.assertTrue(request.headers["referer"].startswith("https://"))
+            return httpx.Response(200, text=self._treffer_seite())
+
+        with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+            angebote = suche_feed(
+                _portal("interamt"), "ki", "Karlsruhe", client
+            )
+
+        self.assertEqual(len(anfragen), 2)
+        self.assertEqual(len(angebote), 2)
+        treffer = angebote[0]
+        self.assertEqual(treffer["portal"], "interamt")
+        self.assertEqual(treffer["titel"], "Digitalisierungsmanager (m/w/d)")
+        self.assertEqual(treffer["firma"], "Stadt Karlsruhe")
+        self.assertEqual(treffer["ort"], "76131 Karlsruhe")
+        self.assertEqual(treffer["arbeitsmodell"], "hybrid")
+        self.assertIn("A11 TV-L E 11", treffer["beschreibung"])
+        self.assertIn("Frist: 21.09.2026", treffer["beschreibung"])
+        self.assertEqual(
+            treffer["link"], "https://www.interamt.de/koop/app/stelle?id=1480611"
+        )
+        self.assertEqual(angebote[1]["ort"], "14163 Berlin")
+        self.assertEqual(
+            angebote[1]["link"], "https://www.interamt.de/koop/app/stelle?id=1480605"
+        )
+
+
 class PolicyTest(unittest.TestCase):
     def test_pfadpraefix_erlaubt_unterseiten(self):
         from job_search_mcp.domain.crawler_models import ReplayRequest

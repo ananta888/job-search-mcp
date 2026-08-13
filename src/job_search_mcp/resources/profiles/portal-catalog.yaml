@@ -99,6 +99,24 @@
   profil_id: jobriver
   hinweis: Öffentlich zugängliche, servergerenderte Trefferliste; robots.txt erlaubt Crawling ausdrücklich. Stellenkarten werden ohne Suchparameter geladen und lokal nach Profil gefiltert.
 
+- portal_id: interamt
+  name: Interamt
+  homepage: https://www.interamt.de
+  kategorie: oeffentliche_vermittlung
+  zugangsart: browser_oeffentlich
+  status: aktiv
+  profil_id: interamt
+  dokumentation_url: https://www.interamt.de/koop/app/stellensuche
+  hinweis: Offizielle Stellenbörse des öffentlichen Dienstes (Bund, Länder, Kommunen). Wicket-Webanwendung; die Stellensuche sendet ein Formular (Referer/Origin erforderlich), robots.txt erlaubt Crawling für Standard-Clients. Der Ort fließt als PLZ/Ortsname in die serverseitige Umkreis-Suche ein (maxEntfernung=50).
+
+- portal_id: direkt-bund
+  name: direkt.bund.de – Stellenangebote
+  homepage: https://www.direkt.bund.de/Stellenangebote
+  kategorie: suchoberflaeche
+  zugangsart: manuelle_websuche
+  status: manuell
+  hinweis: 'Verweis-Portal des Bundes ohne eigene Stellenliste; es verlinkt auf Interamt und einzelne Behörden-Karriereseiten. Kein eigener Adapter.'
+
 - portal_id: jobsheise
   name: jobs.heise.de
   homepage: https://jobs.heise.de

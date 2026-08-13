@@ -24,6 +24,7 @@ class PortalFeed(BaseModel):
         "bw_karriere",
         "jobriver",
         "freelancermap",
+        "interamt",
     ]
     endpoint: str
     max_treffer: int = Field(default=20, ge=1, le=100)

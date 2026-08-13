@@ -12,6 +12,7 @@ import re
 from collections.abc import Callable
 from html.parser import HTMLParser
 from typing import Any
+from urllib.parse import urljoin
 from xml.etree import ElementTree
 
 import httpx
@@ -516,6 +517,65 @@ def _freelancermap(
     return angebote
 
 
+def _interamt_zellen(row: str) -> dict[str, str]:
+    """Liest die data-field-Zellen einer Interamt-Trefferzeile."""
+    felder: dict[str, str] = {}
+    for m in re.finditer(
+        r'<td[^>]*data-field="([^"]+)"[^>]*>(.*?)</td>', row, re.S
+    ):
+        name, inhalt = m.group(1), m.group(2)
+        if name in felder:
+            continue
+        felder[name] = _html_zu_text(inhalt)
+    return felder
+
+
+def _interamt(
+    portal: PortalProfil,
+    payload: object,
+    query: str,
+    ort: str | None,
+) -> list[dict[str, Any]]:
+    if not isinstance(payload, str):
+        raise JobFeedFehler("Interamt lieferte keinen HTML-Text.")
+    angebote: list[dict[str, Any]] = []
+    for row in re.findall(
+        r'<tr[^>]*class="[^"]*ia-e-table__row[^"]*"[^>]*>.*?</tr>', payload, re.S
+    ):
+        felder = _interamt_zellen(row)
+        stelle = re.sub(r"\D", "", felder.get("StellenangebotId", ""))
+        titel = felder.get("Stellenbezeichnung", "").strip()
+        if not stelle or not titel:
+            continue
+        dienstort = felder.get("Dienstort", "").strip().casefold()
+        arbeitsmodell = (
+            dienstort if dienstort in {"remote", "hybrid", "vor ort"} else ""
+        )
+        besoldung = felder.get("BesoldungGruppeDisplayString", "").strip()
+        entgelt = felder.get("TarifEbeneDisplayString", "").strip()
+        eingestellt = felder.get("Von", "").strip()
+        frist = felder.get("Bewerbungsfrist", "").strip()
+        beschreibungs_teile = [
+            besoldung,
+            entgelt,
+            f"Eingestellt: {eingestellt}" if eingestellt else "",
+            f"Frist: {frist}" if frist else "",
+        ]
+        angebot = _basis_angebot(
+            portal=portal,
+            link=f"https://www.interamt.de/koop/app/stelle?id={stelle}",
+            titel=titel,
+            firma=felder.get("Behoerde", "").strip(),
+            ort=felder.get("PLZOrte", "").strip(),
+            arbeitsmodell=arbeitsmodell,
+            skills=[],
+            beschreibung=", ".join(teil for teil in beschreibungs_teile if teil),
+        )
+        if angebot["id"] and angebot["titel"]:
+            angebote.append(angebot)
+    return angebote
+
+
 _ADAPTER: dict[
     str,
     Callable[[PortalProfil, object, str, str | None], list[dict[str, Any]]],
@@ -527,6 +587,7 @@ _ADAPTER: dict[
     "bw_karriere": _bw_karriere,
     "jobriver": _jobriver,
     "freelancermap": _freelancermap,
+    "interamt": _interamt,
 }
 
 
@@ -623,6 +684,91 @@ def _hole_feed(
         ) from exc
 
 
+_INTERAMT_SUCHFELD = (
+    "stellensucheFilterAttributes.suchtextContainer:"
+    "stellensucheFilterAttributes.suchText"
+)
+_INTERAMT_PLZ = "stellensucheFilterAttributes.plzDistance:PLZ"
+_INTERAMT_ENTFERNUNG = (
+    "stellensucheFilterAttributes.plzDistance:"
+    "stellensucheFilterAttributes.maxEntfernung"
+)
+_INTERAMT_BUTTON = "navFooter:navFooter_body:submitRow:actions:0:button"
+_INTERAMT_RADIO = re.compile(r'<input[^>]*type="radio"[^>]*>')
+_INTERAMT_BUTTONS = re.compile(r'<button[^>]*name="([^"]*submitRow[^"]*)"')
+
+
+def _interamt_form_daten(
+    html: str, query: str, ort: str | None
+) -> dict[str, str]:
+    """Baut das Wicket-Formular aus den Radio-Standardwerten der Seite."""
+    daten: dict[str, str] = {}
+    for tag in _INTERAMT_RADIO.finditer(html):
+        name = re.search(r'name="([^"]+)"', tag.group(0))
+        wert = re.search(r'value="([^"]+)"', tag.group(0))
+        if not name or not wert:
+            continue
+        gruppe = name.group(1)
+        if gruppe not in daten or 'checked="checked"' in tag.group(0):
+            daten[gruppe] = wert.group(1)
+    plz = ort.strip() if ort and ort.strip() else ""
+    daten[_INTERAMT_PLZ] = plz
+    daten[_INTERAMT_ENTFERNUNG] = "50"
+    daten[_INTERAMT_SUCHFELD] = query
+    button = _INTERAMT_BUTTONS.search(html)
+    daten[button.group(1) if button else _INTERAMT_BUTTON] = ""
+    return daten
+
+
+def _hole_interamt(
+    client: httpx.Client,
+    portal: PortalProfil,
+    query: str,
+    ort: str | None,
+) -> str:
+    """Liest die Interamt-Stellensuche: Formular holen, per POST ausfuehren."""
+    feed = portal.feed
+    if feed is None:
+        raise ValueError(f"Portal hat keinen Feed: {portal.portal_id}")
+    headers = {"accept": "text/html,application/xhtml+xml"}
+    headers.update(feed.headers)
+    assert_replay_allowed(
+        ReplayRequest(method="GET", url=feed.endpoint, headers=headers, json_body={}),
+        portal.policy,
+    )
+    start = client.get(feed.endpoint, headers=headers)
+    try:
+        start.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        raise JobFeedFehler(
+            f"{portal.portal_id} antwortete beim Formular mit HTTP {start.status_code}."
+        ) from exc
+    action = re.search(r'action=["\']([^"\']+)["\']', start.text)
+    if not action:
+        raise JobFeedFehler("Interamt-Stellensuche enthaelt kein Formular.")
+    ziel = urljoin(str(start.url), action.group(1))
+    daten = _interamt_form_daten(start.text, query, ort)
+    post_headers: dict[str, str] = {
+        "Origin": f"{start.url.scheme}://{start.url.netloc.decode()}",
+        "Referer": str(start.url),
+        "Upgrade-Insecure-Requests": "1",
+    }
+    post_headers.update(headers)
+    assert_replay_allowed(
+        ReplayRequest(method="POST", url=ziel, headers=post_headers, json_body={}),
+        portal.policy,
+    )
+    ergebnis = client.post(ziel, data=daten, headers=post_headers)
+    try:
+        ergebnis.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        raise JobFeedFehler(
+            f"{portal.portal_id} antwortete bei der Suche mit HTTP "
+            f"{ergebnis.status_code}."
+        ) from exc
+    return ergebnis.content.decode("utf-8", errors="replace")
+
+
 def _feed_anfragen(
     client: httpx.Client,
     portal: PortalProfil,
@@ -632,6 +778,8 @@ def _feed_anfragen(
     feed = portal.feed
     if feed is None:
         raise ValueError(f"Portal hat keinen Feed: {portal.portal_id}")
+    if feed.adapter == "interamt":
+        return [_hole_interamt(client, portal, query, ort)]
     payloads: list[object] = []
     if feed.adapter not in ("arbeitsagentur", "bw_karriere", "jobriver"):
         return [

@@ -12,7 +12,8 @@ Aktuelle ausführbare externe Profile sind StepStone sowie die offiziellen
 Feed-Quellen Arbeitnow, Remotive, We Work Remotely, die Jobsuche-API der
 Bundesagentur für Arbeit, das Karriereportal des Landes
 Baden-Württemberg, die öffentliche Stellenliste von JobRiver
-(jobriver.de) und die Projektbörse freelancermap (freelancermap.de).
+(jobriver.de), die Projektbörse freelancermap (freelancermap.de) und die
+öffentliche Stellenbörse Interamt (interamt.de).
 `beispiel-karriere.yaml` bleibt fiktiv; `indeed.yaml`
 bleibt als bewusst gesperrter Grenzfall erhalten.
 
@@ -83,6 +84,17 @@ der optionale browser-use-Fallback bekommt keine Portalpasswörter.
   Aufträge (freiberuflich/Contracting und Arbeitnehmerüberlassung) ein.
   Die lokale Nachfilterung nach Suchbegriff und Ort bleibt wie bei den
   anderen Feeds bestehen.
+- `interamt.yaml` liest die öffentliche Stellenbörse des öffentlichen
+  Dienstes (interamt.de, `koop/app/stellensuche`), deren `robots.txt` normales
+  Crawling erlaubt (`/koop/*` ist nur für einzelne Bot-Namen gesperrt). Die
+  Suche ist ein serverseitiges Wicket-Formular: `_hole_interamt` holt das
+  Formular per GET und führt es per POST mit `Origin`, `Referer` und
+  `Upgrade-Insecure-Requests` aus. Der Ort wird in das PLZ-Feld übertragen
+  (`maxEntfernung=50`); das Portal akzeptiert dort auch Ortsnamen und liefert
+  dann eine Umkreis-Suche. Die Trefferzeilen (`tr.ia-e-table__row`) werden
+  über ihre `data-field`-Zellen gelesen und normalisiert; die Region filtert
+  der Server, eine lokale Orts-Nachfilterung entfällt. Detailseiten sind
+  `https://www.interamt.de/koop/app/stelle?id=<nr>`.
 
 `infrastructure/feeds.py` kapselt Transport und Anbieterformate hinter einem gemeinsamen
 Rohdatenvertrag. Es entfernt HTML, begrenzt Beschreibungstexte und filtert
@@ -115,3 +127,8 @@ als `manuell` geführt, weil alle Pfade inklusive `/api/*` Cloudflare-403 ohne
 Browser-Kalibrierung liefern. XING, Jobware, stellenanzeigen.de, meinestadt.de,
 Monster, GermanTechJobs, Absolventa, Honeypot, JOIN, Glassdoor und
 Google Jobs sind sichtbar, aber bewusst nicht als ungeprüfte Scraper aktiv.
+Das Bundes-Verweisportal direkt.bund.de/Stellenangebote wird als `manuell`
+geführt (`suchoberflaeche`): Es ist ein Verzeichnis- und Verweisportal ohne
+eigene Stellenliste, das auf externe Ausschreibungen (unter anderem
+interamt.de) verlinkt; ein automatisiertes Auslesen ist daher nicht
+vorgesehen.
