@@ -1,0 +1,21 @@
+name: Karriereportal Land Baden-Württemberg
+kind: real
+enabled: true
+base_url: https://karriere.baden-wuerttemberg.de
+portal_id: bw-karriere
+search_path: /de/startseite/stellenanzeigen
+
+policy:
+  allowed_hosts:
+    - karriere.baden-wuerttemberg.de
+  allowed_paths:
+    - /api/job-search
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json
+
+feed:
+  adapter: bw_karriere
+  endpoint: https://karriere.baden-wuerttemberg.de/api/job-search
+  max_treffer: 50
+  attribution: Karriereportal Baden-Württemberg

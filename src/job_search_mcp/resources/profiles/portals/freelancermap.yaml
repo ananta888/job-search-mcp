@@ -1,0 +1,21 @@
+name: freelancermap
+kind: real
+enabled: true
+base_url: https://www.freelancermap.de
+portal_id: freelancermap
+search_path: /projekte
+
+policy:
+  allowed_hosts:
+    - www.freelancermap.de
+  allowed_paths:
+    - /projekte
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json
+
+feed:
+  adapter: freelancermap
+  endpoint: https://www.freelancermap.de/projekte
+  max_treffer: 50
+  attribution: freelancermap

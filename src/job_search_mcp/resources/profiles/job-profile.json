@@ -1,12 +1,13 @@
 {
-  "name": "Java-Backend-Entwickler",
-  "suchbegriffe": ["backend", "java", "spring", "softwareentwickler"],
-  "skills_pflicht": ["java", "spring", "sql"],
-  "skills_wunsch": ["docker", "kubernetes", "rest", "git"],
-  "orte": ["Berlin", "remote"],
+  "name": "KI-Automatisierung & Digitalisierungsmanager",
+  "suchbegriffe": ["ki", "automatisierung", "llm", "digitalisierung", "n8n", "idp", "informatiker"],
+  "skills_pflicht": ["llm", "n8n", "prozessautomatisierung"],
+  "skills_wunsch": ["docker", "rest api", "dsgvo", "eu ai act", "rag", "vision-llm", "ocr"],
+  "orte": ["Karlsruhe", "Bretten", "Pforzheim", "Bruchsal", "Heidelberg", "Heilbronn", "remote"],
   "arbeitsmodelle": ["remote", "hybrid"],
-  "gehalt_min": 65000,
-  "gehalt_max": 95000,
+  "gehalt_min": 55000,
+  "gehalt_max": 85000,
   "sprachen": ["deutsch", "englisch"],
-  "min_erfahrung_jahre": 3
+  "min_erfahrung_jahre": 0,
+  "min_pflicht_skills": 1
 }

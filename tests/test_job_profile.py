@@ -24,9 +24,11 @@ def _schreibe(tmp: str, daten: dict) -> Path:
 class JobProfilLadenTest(unittest.TestCase):
     def test_beispielprofil_wird_geladen_und_normalisiert(self):
         profil = lade_profil()
-        self.assertEqual(profil.name, "Java-Backend-Entwickler")
-        self.assertIn("java", profil.skills_pflicht)
-        self.assertIn("berlin", profil.orte)
+        self.assertEqual(profil.name, "KI-Automatisierung & Digitalisierungsmanager")
+        self.assertIn("ki", profil.suchbegriffe)
+        self.assertIn("llm", profil.skills_pflicht)
+        self.assertEqual(profil.min_pflicht_skills, 1)
+        self.assertIn("karlsruhe", profil.orte)
         self.assertIn("remote", profil.arbeitsmodelle)
 
     def test_gueltiges_profil_aus_dict(self):

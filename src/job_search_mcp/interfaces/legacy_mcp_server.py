@@ -46,6 +46,7 @@ def profil_zu_dict(profil: JobProfil) -> dict[str, object]:
         "gehalt_max": profil.gehalt_max,
         "sprachen": sorted(profil.sprachen),
         "min_erfahrung_jahre": profil.min_erfahrung_jahre,
+        "min_pflicht_skills": profil.min_pflicht_skills,
     }
 
 

@@ -1,0 +1,23 @@
+name: JobRiver
+kind: real
+enabled: true
+base_url: https://jobriver.de
+portal_id: jobriver
+search_path: /stellenangebote
+
+policy:
+  allowed_hosts:
+    - jobriver.de
+  allowed_paths:
+    - /stellenangebote
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json
+
+feed:
+  adapter: jobriver
+  endpoint: https://jobriver.de/stellenangebote
+  max_treffer: 50
+  headers:
+    accept: text/html,application/xhtml+xml
+  attribution: JobRiver

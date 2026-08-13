@@ -30,6 +30,7 @@ class JobProfil:
     gehalt_max: int | None = None
     sprachen: frozenset[str] = frozenset()
     min_erfahrung_jahre: int = 0
+    min_pflicht_skills: int | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "suchbegriffe", normalisiere_tuple(*self.suchbegriffe))

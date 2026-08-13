@@ -53,6 +53,11 @@ def schreibe_bericht(
         f"- Arbeitsmodelle: {', '.join(profil.arbeitsmodelle)}",
         f"- Gehaltsspanne: {profil.gehalt_min or 0} - {profil.gehalt_max or 'unbegrenzt'} EUR",
         f"- Sprachen: {', '.join(sorted(profil.sprachen))}",
+        (
+            f"- Mindest-Pflicht-Skills: {profil.min_pflicht_skills}"
+            if profil.min_pflicht_skills is not None
+            else f"- Mindest-Pflicht-Skills: alle ({len(profil.skills_pflicht)})"
+        ),
         "",
         "## Zusammenfassung",
         "",
