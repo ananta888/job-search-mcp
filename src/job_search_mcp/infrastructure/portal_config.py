@@ -16,9 +16,18 @@ PORTAL_KATALOG_DATEI = PORTAL_CATALOG_FILE
 class PortalFeed(BaseModel):
     """Offiziell angebotener maschinenlesbarer Stellenfeed."""
 
-    adapter: Literal["arbeitnow", "remotive", "weworkremotely"]
+    adapter: Literal[
+        "arbeitnow",
+        "remotive",
+        "weworkremotely",
+        "arbeitsagentur",
+        "bw_karriere",
+        "jobriver",
+        "freelancermap",
+    ]
     endpoint: str
     max_treffer: int = Field(default=20, ge=1, le=100)
+    headers: dict[str, str] = Field(default_factory=dict)
     attribution: str | None = None
 
 
@@ -36,6 +45,7 @@ class PortalKatalogEintrag(BaseModel):
         "berufsnetzwerk",
         "oeffentliche_vermittlung",
         "suchoberflaeche",
+        "freelance_boerse",
     ]
     zugangsart: Literal[
         "browser_oeffentlich",

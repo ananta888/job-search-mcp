@@ -90,18 +90,29 @@ def _gehalt_score(profil: JobProfil, angebot: JobAngebot) -> int:
 
 def _bewerte_einzel(profil: JobProfil, angebot: JobAngebot) -> JobMatch:
     gruende: list[str] = []
+    vorhandene_pflicht = frozenset(
+        skill
+        for skill in profil.skills_pflicht
+        if _skill_abgedeckt(angebot.skills, skill)
+    )
     fehlende_pflicht = tuple(
-        sorted(
-            skill
-            for skill in profil.skills_pflicht
-            if not _skill_abgedeckt(angebot.skills, skill)
-        )
+        sorted(skill for skill in profil.skills_pflicht - vorhandene_pflicht)
+    )
+    benoetigte_pflicht = (
+        len(profil.skills_pflicht)
+        if profil.min_pflicht_skills is None
+        else min(profil.min_pflicht_skills, len(profil.skills_pflicht))
     )
     passt = True
 
-    if fehlende_pflicht:
+    if len(vorhandene_pflicht) < benoetigte_pflicht:
         passt = False
         gruende.append("Pflicht-Skills fehlen: " + ", ".join(fehlende_pflicht))
+    elif fehlende_pflicht:
+        gruende.append(
+            f"Pflicht-Skills vorhanden ({len(vorhandene_pflicht)}"
+            f"/{len(profil.skills_pflicht)}): " + ", ".join(sorted(vorhandene_pflicht))
+        )
     else:
         gruende.append("Alle Pflicht-Skills vorhanden")
 

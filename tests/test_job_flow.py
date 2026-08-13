@@ -1,5 +1,6 @@
 """Integrationstests fuer den lokalen Job-Flow."""
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -24,6 +25,23 @@ def _mini_profil() -> JobProfil:
         suchbegriffe=("java",),
         skills_pflicht={"java"},
     )
+
+
+def _schreibe_java_profil(tmp: str) -> Path:
+    """Temporaeres Java-Profil, das zur lokalen Demo-Sandbox passt."""
+    pfad = Path(tmp) / "profil.json"
+    pfad.write_text(
+        json.dumps(
+            {
+                "name": "Dev",
+                "suchbegriffe": ["backend", "java"],
+                "skills_pflicht": ["java", "spring", "sql"],
+                "skills_wunsch": ["docker"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return pfad
 
 
 class PortalLadenTest(unittest.TestCase):
@@ -117,7 +135,9 @@ class LaufTest(unittest.TestCase):
     def test_lauf_erzeugt_bericht_mit_treffern_und_quellen(self):
         with tempfile.TemporaryDirectory() as tmp:
             ziel = Path(tmp) / "bericht.md"
-            profil, matches, pfad = lauf(bericht_pfad=ziel)
+            profil, matches, pfad = lauf(
+                profil_pfad=_schreibe_java_profil(tmp), bericht_pfad=ziel
+            )
             self.assertTrue(pfad.exists())
             text = pfad.read_text(encoding="utf-8")
             self.assertIn(profil.name, text)

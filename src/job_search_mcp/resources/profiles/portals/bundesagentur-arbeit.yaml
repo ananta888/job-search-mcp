@@ -1,0 +1,23 @@
+name: Bundesagentur für Arbeit
+kind: real
+enabled: true
+base_url: https://www.arbeitsagentur.de/jobsuche
+portal_id: arbeitsagentur
+search_path: /jobsuche
+
+policy:
+  allowed_hosts:
+    - rest.arbeitsagentur.de
+  allowed_paths:
+    - /jobboerse/jobsuche-service/pc/v6/jobs
+
+validation:
+  schema_file: schemas/job-portal-response.schema.json
+
+feed:
+  adapter: arbeitsagentur
+  endpoint: https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v6/jobs
+  headers:
+    X-API-Key: jobboerse-jobsuche
+  max_treffer: 20
+  attribution: Bundesagentur für Arbeit

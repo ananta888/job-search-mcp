@@ -71,10 +71,59 @@
   name: Bundesagentur für Arbeit
   homepage: https://www.arbeitsagentur.de/jobsuche
   kategorie: oeffentliche_vermittlung
-  zugangsart: browser_oeffentlich
-  status: nicht_angebunden
+  zugangsart: oeffentliche_api
+  status: aktiv
+  profil_id: arbeitsagentur
+  dokumentation_url: https://jobsuche.api.bund.dev/
   bedingungen_url: https://www.arbeitsagentur.de/nutzungsbedingungen
-  hinweis: Öffentliche Jobsuche vorhanden; ein stabiler Stellen-Adapter ist noch zu kalibrieren.
+  attribution: Bundesagentur für Arbeit
+  hinweis: Öffentliche Jobsuche-API der Bundesagentur (Open-Data-Dokumentation der Kommunen/des Bundes); Header-basierter Demo-Schlüssel, Nutzung erfolgt ohne Konto.
+
+- portal_id: bw-karriere
+  name: Karriereportal Land Baden-Württemberg
+  homepage: https://karriere.baden-wuerttemberg.de
+  kategorie: jobboerse
+  zugangsart: oeffentliche_api
+  status: aktiv
+  profil_id: bw-karriere
+  dokumentation_url: https://karriere.baden-wuerttemberg.de/de/startseite/stellenanzeigen
+  attribution: Karriereportal Baden-Württemberg
+  hinweis: Öffentliche Stellenbörse des Landes mit JSON-API; Auswahl öffentlicher Verwaltungsstellen.
+
+- portal_id: jobriver
+  name: JobRiver
+  homepage: https://jobriver.de
+  kategorie: jobboerse
+  zugangsart: browser_oeffentlich
+  status: aktiv
+  profil_id: jobriver
+  hinweis: Öffentlich zugängliche, servergerenderte Trefferliste; robots.txt erlaubt Crawling ausdrücklich. Stellenkarten werden ohne Suchparameter geladen und lokal nach Profil gefiltert.
+
+- portal_id: jobsheise
+  name: jobs.heise.de
+  homepage: https://jobs.heise.de
+  kategorie: jobboerse
+  zugangsart: manuelle_websuche
+  status: manuell
+  hinweis: 'Next.js-SPA; Daten nur über /api-Aufrufe, die in robots.txt mit Disallow: /api gesperrt sind; keine Sitemap/RSS. Kein automatisierter Adapter.'
+
+- portal_id: freelancermap
+  name: freelancermap
+  homepage: https://www.freelancermap.de
+  kategorie: freelance_boerse
+  zugangsart: browser_oeffentlich
+  status: aktiv
+  profil_id: freelancermap
+  attribution: freelancermap
+  hinweis: Marktplatz für freiberufliche Projektaufträge; robots.txt erlaubt Crawling. Die servergerenderte Projektsuche /projekte liefert eingebettetes JSON und filtert per query- und city-Parameter; Festanstellungen werden ausgeschlossen, freiberufliche Aufträge und Arbeitnehmerüberlassung einbezogen.
+
+- portal_id: freelance-de
+  name: freelance.de
+  homepage: https://www.freelance.de
+  kategorie: freelance_boerse
+  zugangsart: partner_api
+  status: gesperrt
+  hinweis: 'robots.txt untersagt automatisiertes Crawling ausdrücklich ohne schriftliche Genehmigung (crawling-guideline.html); kein Adapter.'
 
 - portal_id: xing
   name: XING Jobs
@@ -130,8 +179,8 @@
   homepage: https://www.jobvector.de
   kategorie: jobboerse
   zugangsart: manuelle_websuche
-  status: nicht_angebunden
-  hinweis: Fachstellenbörse; Selektoren und Nutzungsweg sind noch nicht geprüft.
+  status: manuell
+  hinweis: Alle Pfade inklusive /api/* liefern Cloudflare 403 ohne Browser-Kalibrierung; kein offener Lese-Adapters geprüft.
 
 - portal_id: absolventa
   name: Absolventa

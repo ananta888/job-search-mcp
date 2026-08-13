@@ -60,6 +60,7 @@ def profil_aus_dict(rohdaten: dict[str, Any]) -> JobProfil:
         gehalt_max=gehalt_max,
         sprachen=normalisiere_menge(*rohdaten.get("sprachen", [])),
         min_erfahrung_jahre=int(rohdaten.get("min_erfahrung_jahre", 0)),
+        min_pflicht_skills=rohdaten.get("min_pflicht_skills"),
     )
 
 

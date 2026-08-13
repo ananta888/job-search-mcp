@@ -300,7 +300,8 @@ class FakeManager:
                 "arbeitsmodell": "",
                 "sprachen": [],
                 "beschreibung": (
-                    "Gesucht werden Java, Spring, SQL und REST. "
+                    "Gesucht werden LLM, n8n und Prozessautomatisierung. "
+                    "Erwuenscht sind Docker, RAG und OCR. "
                     "Remote-Arbeit; Teamsprachen Deutsch und Englisch."
                 ),
                 "link": "https://x.example/job/1",
@@ -349,7 +350,7 @@ class PortalSucheMitManagerTest(_UmgebungsTest):
             self.assertEqual(ergebnis["angebote"][0]["link"], "https://x.example/job/1")
             self.assertEqual(
                 ergebnis["angebote"][0]["skills"],
-                ["java", "rest", "spring", "sql"],
+                ["docker", "llm", "n8n", "ocr", "prozessautomatisierung", "rag"],
             )
             self.assertEqual(ergebnis["angebote"][0]["arbeitsmodell"], "remote")
             self.assertEqual(
@@ -368,7 +369,7 @@ class PortalSucheMitManagerTest(_UmgebungsTest):
                 return_value=FakeManager([]),
             ):
                 ergebnis = portal_suche("stepstone", profil_pfad="job-profile.json")
-            self.assertEqual(ergebnis["query"], "backend")
+            self.assertEqual(ergebnis["query"], "ki")
         finally:
             tmp.cleanup()
 

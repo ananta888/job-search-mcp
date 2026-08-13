@@ -34,6 +34,11 @@
       "type": "array",
       "items": {"type": "string", "minLength": 1}
     },
-    "min_erfahrung_jahre": {"type": "integer", "minimum": 0}
+    "min_erfahrung_jahre": {"type": "integer", "minimum": 0},
+    "min_pflicht_skills": {
+      "description": "Mindestanzahl Pflicht-Skills, die ein Angebot aufweisen muss (Standard: alle).",
+      "type": "integer",
+      "minimum": 1
+    }
   }
 }

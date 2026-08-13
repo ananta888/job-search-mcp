@@ -34,8 +34,9 @@ class RegistrierungTest(unittest.TestCase):
 class WerkzeugTest(unittest.TestCase):
     def test_lade_profil(self):
         profil = lade_profil()
-        self.assertEqual(profil["name"], "Java-Backend-Entwickler")
-        self.assertIn("java", profil["skills_pflicht"])
+        self.assertEqual(profil["name"], "KI-Automatisierung & Digitalisierungsmanager")
+        self.assertIn("llm", profil["skills_pflicht"])
+        self.assertEqual(profil["min_pflicht_skills"], 1)
 
     def test_liste_portale(self):
         portale = liste_portale()
@@ -46,7 +47,7 @@ class WerkzeugTest(unittest.TestCase):
 
     def test_suche_angebote(self):
         ergebnis = suche_angebote()
-        self.assertIn("java", ergebnis["profil"]["skills_pflicht"])
+        self.assertIn("llm", ergebnis["profil"]["skills_pflicht"])
         self.assertGreater(len(ergebnis["angebote"]), 0)
         self.assertTrue(any("acme" in quelle for quelle in ergebnis["quellen"]))
 
