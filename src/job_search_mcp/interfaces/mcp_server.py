@@ -663,22 +663,22 @@ def mehrportal_suche(
             )
         # Die Aggregation muss auch unbekannte anbieterspezifische Fehler isolieren.
         except Exception as exc:  # noqa: BLE001
-            error = _sicherer_fehler(exc)
+            sicherer_fehler = _sicherer_fehler(exc)
             quellen.append(
                 {
                     "portal_id": portal_id,
                     "status": "fehler",
-                    "fehler": error["message"],
-                    "error": error,
+                    "fehler": sicherer_fehler["message"],
+                    "error": sicherer_fehler,
                     "angebote": 0,
                 }
             )
     erfolgreich = sum(1 for quelle in quellen if quelle["status"] == "ok")
     errors: list[dict[str, object]] = []
     for quelle in quellen:
-        error = quelle.get("error")
-        if quelle["status"] == "fehler" and isinstance(error, dict):
-            errors.append({"source_id": quelle["portal_id"], **error})
+        quellenfehler = quelle.get("error")
+        if quelle["status"] == "fehler" and isinstance(quellenfehler, dict):
+            errors.append({"source_id": quelle["portal_id"], **quellenfehler})
     return {
         "contract": "job-search-mcp",
         "contract_version": CONTRACT_VERSION,
