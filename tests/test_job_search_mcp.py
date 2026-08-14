@@ -1,6 +1,7 @@
 """Tests fuer den neuen Job-Search-MCP-Server (Login/Sitzung/Suche)."""
 
 import asyncio
+import json
 import os
 import tempfile
 import threading
@@ -13,6 +14,7 @@ from job_search_mcp.interfaces.mcp_server import (
     anmeldedaten_entfernen,
     anmeldedaten_hinterlegen,
     browser_status,
+    capabilities,
     liste_portale,
     mcp,
     mehrportal_suche,
@@ -59,6 +61,7 @@ class RegistrierungTest(unittest.TestCase):
         tools = asyncio.run(mcp.list_tools())
         namen = {getattr(tool, "name", str(tool)) for tool in tools}
         erwartet = {
+            "capabilities",
             "browser_status",
             "anmeldedaten_hinterlegen",
             "anmeldedaten_entfernen",
@@ -74,6 +77,17 @@ class RegistrierungTest(unittest.TestCase):
             "analysiere_echtes_portal",
         }
         self.assertTrue(erwartet.issubset(namen), f"fehlen: {erwartet - namen}")
+
+    def test_capabilities_liefern_versionierten_vertrag(self):
+        result = capabilities()
+        self.assertEqual(result["contract"], "job-search-mcp")
+        self.assertEqual(result["contract_version"], "1.0")
+        self.assertIn("mehrportal_suche", result["tools"])
+        by_id = {source["id"]: source for source in result["sources"]}
+        self.assertTrue(by_id["stepstone"]["supports_login"])
+        self.assertIn("query", by_id["stepstone"]["filters"])
+        self.assertEqual(by_id["arbeitnow"]["access"], "oeffentliche_api")
+        self.assertEqual(by_id["arbeitnow"]["contract_version"], "1.0")
 
 
 class PortalToolsTest(_UmgebungsTest):
@@ -175,7 +189,14 @@ class PortalToolsTest(_UmgebungsTest):
         _freigabe()
         try:
             with (
-                mock.patch.dict(os.environ, {"DISPLAY": "", "WAYLAND_DISPLAY": ""}),
+                mock.patch(
+                    "job_search_mcp.interfaces.mcp_server._sichtbarer_browser_status",
+                    return_value={
+                        "verfuegbar": False,
+                        "technik": None,
+                        "hinweis": "Keine Anzeige; WSLg oder DISPLAY konfigurieren.",
+                    },
+                ),
                 mock.patch(
                     "job_search_mcp.interfaces.mcp_server._manager"
                 ) as manager_factory,
@@ -263,6 +284,11 @@ class PortalToolsTest(_UmgebungsTest):
             )
 
         self.assertEqual(ergebnis["angebote_gefunden"], 1)
+        self.assertEqual(ergebnis["contract_version"], "1.0")
+        self.assertIn("fetched_at", ergebnis)
+        self.assertEqual(
+            ergebnis["angebote"][0]["source_reference"]["source_id"], "arbeitnow"
+        )
         self.assertEqual(ergebnis["quellen_erfolgreich"], 1)
         self.assertEqual(ergebnis["quellen_fehlgeschlagen"], 1)
         remotive = next(
@@ -271,6 +297,88 @@ class PortalToolsTest(_UmgebungsTest):
             if quelle["portal_id"] == "remotive"
         )
         self.assertEqual(remotive["status"], "fehler")
+        self.assertEqual(remotive["error"]["category"], "internal")
+        self.assertFalse(remotive["error"]["retryable"])
+        self.assertEqual(ergebnis["errors"][0]["source_id"], "remotive")
+        self.assertEqual(ergebnis["errors"][0]["category"], "internal")
+
+    def test_mehrportal_suche_leitet_fehlende_external_id_stabil_ab(self):
+        angebot = {
+            "portal": "arbeitnow",
+            "firma": "Beispiel GmbH",
+            "titel": "Backend Developer",
+            "ort": "Berlin",
+        }
+
+        with mock.patch(
+            "job_search_mcp.interfaces.mcp_server.portal_suche",
+            return_value={
+                "zugriffsart": "oeffentliche_api",
+                "angebote": [angebot],
+            },
+        ):
+            erster_lauf = mehrportal_suche(portal_ids=["arbeitnow"], query="backend")
+            zweiter_lauf = mehrportal_suche(portal_ids=["arbeitnow"], query="backend")
+
+        erste_referenz = erster_lauf["angebote"][0]["source_reference"]
+        zweite_referenz = zweiter_lauf["angebote"][0]["source_reference"]
+        self.assertRegex(
+            erste_referenz["external_id"], r"^derived-sha256:[0-9a-f]{64}$"
+        )
+        self.assertEqual(erste_referenz["external_id"], zweite_referenz["external_id"])
+        self.assertIsNone(erste_referenz["url"])
+        self.assertEqual(
+            erster_lauf["angebote"][0]["normalization_warnings"],
+            ["source_reference.external_id_derived_from_content"],
+        )
+
+    def test_mehrportal_suche_klassifiziert_fehler_ohne_detail_leak(self):
+        geheimes_detail = r"C:\Users\Alice\.job-search\session-token.json"
+        faelle = (
+            (
+                BrowserSessionFehler(
+                    f"Keine gespeicherte Sitzung fuer {geheimes_detail}; erst einloggen."
+                ),
+                "authentication",
+                False,
+            ),
+            (
+                BrowserSessionFehler(
+                    f"Treiber unter {geheimes_detail} ist nicht installiert."
+                ),
+                "validation",
+                False,
+            ),
+            (
+                BrowserSessionFehler(
+                    f"Browsersuche fuer {geheimes_detail} ist fehlgeschlagen."
+                ),
+                "internal",
+                False,
+            ),
+            (
+                ConnectionError(f"Verbindung zu {geheimes_detail} fehlgeschlagen"),
+                "retryable_dependency",
+                True,
+            ),
+        )
+
+        for exception, erwartete_kategorie, retryable in faelle:
+            with self.subTest(kategorie=erwartete_kategorie):
+                with mock.patch(
+                    "job_search_mcp.interfaces.mcp_server.portal_suche",
+                    side_effect=exception,
+                ):
+                    ergebnis = mehrportal_suche(
+                        portal_ids=["arbeitnow"], query="backend"
+                    )
+
+                fehler = ergebnis["errors"][0]
+                self.assertEqual(fehler["category"], erwartete_kategorie)
+                self.assertEqual(fehler["retryable"], retryable)
+                self.assertEqual(ergebnis["quellen"][0]["fehler"], fehler["message"])
+                self.assertNotIn(geheimes_detail, json.dumps(ergebnis))
+                self.assertNotIn(str(exception), json.dumps(ergebnis))
 
 
 class FakeManager:

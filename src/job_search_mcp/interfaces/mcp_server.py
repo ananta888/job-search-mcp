@@ -14,9 +14,12 @@ Treiber: camoufox primaer, browser-use als Fallback. Laeuft lokal ohne Docker.
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import os
 import re
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -54,6 +57,86 @@ from job_search_mcp.interfaces.legacy_mcp_server import (
 from job_search_mcp.paths import resolve_profile_path
 
 mcp = FastMCP("job-search")
+CONTRACT_VERSION = "1.0"
+
+_SAFE_ERROR_MESSAGES = {
+    "validation": "Die Quellenanfrage oder lokale Quellkonfiguration ist ungueltig.",
+    "policy": "Der Quellenzugriff ist durch die lokale Richtlinie gesperrt.",
+    "authentication": "Fuer diese Quelle ist eine Anmeldung oder gueltige Sitzung erforderlich.",
+    "rate_limit": "Die Quelle begrenzt Anfragen voruebergehend.",
+    "retryable_dependency": "Eine lokale oder externe Quellenabhaengigkeit ist voruebergehend nicht verfuegbar.",
+    "internal": "Die Quelle konnte nicht verarbeitet werden.",
+}
+
+_BROWSER_AUTHENTICATION_MARKERS = (
+    "keine anmeldedaten",
+    "keine gespeicherte sitzung",
+    "keine sitzung",
+    "credential-speicher",
+    "erst einloggen",
+    "zuerst einloggen",
+)
+
+_BROWSER_VALIDATION_MARKERS = (
+    "ist nicht installiert",
+    "nicht konfiguriert",
+    "keine browser-use-llm-konfiguration",
+    "keine login-konfiguration",
+    "keine suche-konfiguration",
+    "unterstuetzt keinen ortsfilter",
+    "nur mit einem browserbasierten treiber",
+    "suche nur mit browserbasiertem treiber",
+    "keine anzeige",
+    "display konfigurieren",
+)
+
+
+@mcp.tool()
+def capabilities() -> dict[str, object]:
+    """Liefert den versionierten, maschinenlesbaren Integrationsvertrag."""
+    sources: list[dict[str, object]] = []
+    for portal in liste_portale():
+        filters = ["query"]
+        if portal.get("suche_konfiguriert"):
+            filters.append("location")
+        sources.append(
+            {
+                "id": portal["portal_id"],
+                "contract_version": CONTRACT_VERSION,
+                "name": portal["name"],
+                "enabled": bool(portal["enabled"]),
+                "access": portal["zugangsart"],
+                "supports_login": bool(portal["login_konfiguriert"]),
+                "login_required_for_search": bool(
+                    portal["login_fuer_suche_erforderlich"]
+                ),
+                "filters": filters,
+                "pagination": False,
+                "policy_status": portal["status"],
+            }
+        )
+    return {
+        "contract": "job-search-mcp",
+        "contract_version": CONTRACT_VERSION,
+        "compatible_major_versions": [1],
+        "tools": [
+            "capabilities",
+            "browser_status",
+            "liste_portale",
+            "mehrportal_suche",
+            "portal_login",
+            "portal_sitzung_loeschen",
+        ],
+        "error_categories": [
+            "validation",
+            "policy",
+            "authentication",
+            "rate_limit",
+            "retryable_dependency",
+            "internal",
+        ],
+        "sources": sources,
+    }
 
 
 def _projekt_pfad(pfad: str | Path) -> Path:
@@ -474,6 +557,52 @@ def _portal_zeile(
     }
 
 
+def _nicht_leerer_text(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _abgeleitete_external_id(portal_id: str, angebot: dict[str, object]) -> str:
+    identitaet = {
+        str(key): value
+        for key, value in angebot.items()
+        if str(key) not in {"fetched_at", "normalization_warnings", "source_reference"}
+    }
+    kanonisch = json.dumps(
+        identitaet,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        default=lambda value: f"<{type(value).__module__}.{type(value).__qualname__}>",
+    )
+    digest = hashlib.sha256(f"{portal_id}\0{kanonisch}".encode()).hexdigest()
+    return f"derived-sha256:{digest}"
+
+
+def _normalisierte_quellenreferenz(
+    portal_id: str,
+    angebot: dict[str, object],
+    fetched_at: str,
+) -> tuple[dict[str, object], list[str]]:
+    url = _nicht_leerer_text(angebot.get("link"))
+    external_id = _nicht_leerer_text(angebot.get("id")) or url
+    warnungen: list[str] = []
+    if external_id is None:
+        external_id = _abgeleitete_external_id(portal_id, angebot)
+        warnungen.append("source_reference.external_id_derived_from_content")
+    return (
+        {
+            "source_id": portal_id,
+            "external_id": external_id,
+            "url": url,
+            "fetched_at": fetched_at,
+        },
+        warnungen,
+    )
+
+
 def mehrportal_suche(
     portal_ids: list[str] | None = None,
     query: str | None = None,
@@ -495,6 +624,7 @@ def mehrportal_suche(
             and portal.enabled
             and portal.suchart in {"browser", "feed"}
         ]
+    fetched_at = datetime.now(UTC).isoformat()
     angebote: list[dict[str, object]] = []
     quellen: list[dict[str, object]] = []
     for portal_id in dict.fromkeys(portal_ids):
@@ -508,7 +638,21 @@ def mehrportal_suche(
             treffer = ergebnis.get("angebote", [])
             if not isinstance(treffer, list):
                 treffer = []
-            angebote.extend(treffer)
+            for angebot in treffer:
+                if not isinstance(angebot, dict):
+                    continue
+                normalized = dict(angebot)
+                source_reference, normalization_warnings = (
+                    _normalisierte_quellenreferenz(portal_id, normalized, fetched_at)
+                )
+                normalized.update(
+                    {
+                        "fetched_at": fetched_at,
+                        "source_reference": source_reference,
+                        "normalization_warnings": normalization_warnings,
+                    }
+                )
+                angebote.append(normalized)
             quellen.append(
                 {
                     "portal_id": portal_id,
@@ -519,16 +663,26 @@ def mehrportal_suche(
             )
         # Die Aggregation muss auch unbekannte anbieterspezifische Fehler isolieren.
         except Exception as exc:  # noqa: BLE001
+            error = _sicherer_fehler(exc)
             quellen.append(
                 {
                     "portal_id": portal_id,
                     "status": "fehler",
-                    "fehler": str(exc),
+                    "fehler": error["message"],
+                    "error": error,
                     "angebote": 0,
                 }
             )
     erfolgreich = sum(1 for quelle in quellen if quelle["status"] == "ok")
+    errors: list[dict[str, object]] = []
+    for quelle in quellen:
+        error = quelle.get("error")
+        if quelle["status"] == "fehler" and isinstance(error, dict):
+            errors.append({"source_id": quelle["portal_id"], **error})
     return {
+        "contract": "job-search-mcp",
+        "contract_version": CONTRACT_VERSION,
+        "fetched_at": fetched_at,
         "query": suchtext,
         "ort": ort,
         "portal_ids": list(dict.fromkeys(portal_ids)),
@@ -537,6 +691,36 @@ def mehrportal_suche(
         "quellen": quellen,
         "quellen_erfolgreich": erfolgreich,
         "quellen_fehlgeschlagen": len(quellen) - erfolgreich,
+        "errors": errors,
+    }
+
+
+def _error_category(error: Exception) -> str:
+    if isinstance(error, BrowserSessionFehler):
+        message = str(error).casefold()
+        if any(marker in message for marker in _BROWSER_AUTHENTICATION_MARKERS):
+            return "authentication"
+        if any(marker in message for marker in _BROWSER_VALIDATION_MARKERS):
+            return "validation"
+        return "internal"
+    if isinstance(error, (ConnectionError, TimeoutError)):
+        return "retryable_dependency"
+    if isinstance(error, ValueError):
+        message = str(error).casefold()
+        return (
+            "policy"
+            if "freigegeben" in message or "erlaubt" in message
+            else "validation"
+        )
+    return "internal"
+
+
+def _sicherer_fehler(error: Exception) -> dict[str, object]:
+    category = _error_category(error)
+    return {
+        "category": category,
+        "message": _SAFE_ERROR_MESSAGES[category],
+        "retryable": category in {"rate_limit", "retryable_dependency"},
     }
 
 

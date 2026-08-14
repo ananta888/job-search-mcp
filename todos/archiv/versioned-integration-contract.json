@@ -1,0 +1,43 @@
+{
+  "$schema": "../todo.track.schema.json",
+  "version": 1,
+  "owner": "job-search-mcp",
+  "track": "versioned-integration-contract",
+  "created": "2026-08-13",
+  "updated": "2026-08-14",
+  "purpose": "Einen versionierten Capability- und Ergebnisvertrag für job-match-and-apply bereitstellen.",
+  "goal": "Quellen, Filter, Loginbedarf, Suchergebnisse und Fehler werden maschinenlesbar und rückwärtskompatibel veröffentlicht.",
+  "status_scale": ["todo", "in_progress", "partial", "blocked", "done"],
+  "priority_scale": ["low", "medium", "high"],
+  "risk_scale": ["low", "medium", "high"],
+  "milestones": [
+    { "id": "M1", "title": "Capability-Vertrag", "task_ids": ["VIC-01"], "status": "done" },
+    { "id": "M2", "title": "Ergebnis- und Fehlervertrag", "task_ids": ["VIC-02", "VIC-03"], "status": "done" }
+  ],
+  "tasks": [
+    {
+      "id": "VIC-01", "title": "Capability-Tool bereitstellen", "status": "done", "priority": "high", "risk": "medium", "progress_percent": 100,
+      "acceptance_criteria": ["Tool meldet Contract-Version, Werkzeuge, Quellen, Filter, Loginbedarf und Policy-Status."]
+    },
+    {
+      "id": "VIC-02", "title": "Suchergebnis mit Provenienz versionieren", "status": "done", "priority": "high", "risk": "high", "progress_percent": 100,
+      "acceptance_criteria": ["Treffer und Teilausfälle besitzen stabile IDs, Abrufzeit, Provenienz und strukturierte Warnungen."]
+    },
+    {
+      "id": "VIC-03", "title": "Strukturierte Fehler und Contract-Tests liefern", "status": "done", "priority": "high", "risk": "high", "progress_percent": 100,
+      "acceptance_criteria": ["Fehlerkategorien sind sicher unterscheidbar und Root-Contract-Tests prüfen Kompatibilität."]
+    }
+  ],
+  "critical_path_tasks": ["VIC-01", "VIC-02", "VIC-03"],
+  "tasks_status_summary": {
+    "total": 3,
+    "by_status": { "todo": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 3 },
+    "progress_percent_done": 100,
+    "by_priority": { "high": 3, "medium": 0, "low": 0 },
+    "by_risk": { "high": 2, "medium": 1, "low": 0 },
+    "critical_path": { "total": 3, "done": 3, "remaining": 0 },
+    "milestones": { "total": 2, "todo": 0, "in_progress": 0, "blocked": 0, "done": 2 }
+  },
+  "progress_summary": { "state": "done", "todo_remaining": 0, "in_progress": 0, "partial": 0, "blocked": 0, "done": 3 },
+  "summary_notes": ["Dieses Todo gehört ausschließlich zum job-search-mcp-Submodule."]
+}
