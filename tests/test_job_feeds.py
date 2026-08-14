@@ -374,7 +374,6 @@ class FeedSucheTest(unittest.TestCase):
         self.assertEqual(treffer["arbeitsmodell"], "hybrid")
         self.assertTrue(treffer["link"].endswith("/jobs/senior-ki-entwickler-123"))
 
-
     def test_freelancermap_nutzt_query_city_und_mappt_projektfelder(self):
         import json
 
@@ -435,9 +434,7 @@ class FeedSucheTest(unittest.TestCase):
             )
 
         with httpx.Client(transport=httpx.MockTransport(handler)) as client:
-            angebote = suche_feed(
-                _portal("freelancermap"), "ki", "Karlsruhe", client
-            )
+            angebote = suche_feed(_portal("freelancermap"), "ki", "Karlsruhe", client)
 
         self.assertEqual(len(angebote), 1)
         treffer = angebote[0]

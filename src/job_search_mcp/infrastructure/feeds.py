@@ -396,9 +396,7 @@ def _freelancermap_json(text: str) -> dict[str, Any]:
     marker = 'data-component-name="ProjectSearch"'
     start = text.find(marker)
     if start < 0:
-        raise JobFeedFehler(
-            "Freelancermap-Seite enthaelt kein ProjectSearch-JSON."
-        )
+        raise JobFeedFehler("Freelancermap-Seite enthaelt kein ProjectSearch-JSON.")
     start = text.find(">", start) + 1
     ende = text.find("</script>", start)
     if ende < 0:
@@ -635,9 +633,7 @@ def _feed_anfragen(
     payloads: list[object] = []
     if feed.adapter not in ("arbeitsagentur", "bw_karriere", "jobriver"):
         return [
-            _hole_feed(
-                client, portal, _feed_params(feed.adapter, feed, query, ort, 1)
-            )
+            _hole_feed(client, portal, _feed_params(feed.adapter, feed, query, ort, 1))
         ]
     for seite in range(1, MAX_SEITEN + 1):
         params = _feed_params(feed.adapter, feed, query, ort, seite)
